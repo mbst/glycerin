@@ -2,9 +2,13 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 
+sourceCompatibility = 1.6
+group 'com.metabroadcast.atlas.glycerin'
+version = '0.1.0'
+
 configurations {
-    deployerJars
     xjc
+    queriesCompile
 }
 
 repositories {
@@ -13,79 +17,143 @@ repositories {
 }
 
 dependencies {
-    
-    compile 'com.google.guava:guava:15.0-rc1'
+
+    compile 'com.google.guava:guava:15.0'
     compile 'org.hamcrest:hamcrest-core:1.3'
     compile 'joda-time:joda-time:2.3'
     compile 'org.slf4j:slf4j-api:1.7.5'
-    compile 'com.google.http-client:google-http-client:1.16.0-rc'
+    compile 'com.google.http-client:google-http-client:1.17.0-rc'
+    compile 'com.google.http-client:google-http-client-xml:1.17.0-rc'
 
-    testCompile('org.testng:testng:6.8.5') {
-        exclude group: 'junit'
-    }
+    testCompile('org.testng:testng:6.8.5') { exclude group: 'junit' }
     testCompile 'junit:junit:4.11'
-    testCompile('org.mockito:mockito-core:1.9.5') {
-        exclude group: 'org.hamcrest'
-    }
+    testCompile('org.mockito:mockito-core:1.9.5') { exclude group: 'org.hamcrest' }
     testCompile 'org.slf4j:slf4j-log4j12:1.7.5'
-    
+
     xjc 'com.sun.xml.bind:jaxb-xjc:2.2.4-1'
-    
-    deployerJars 'org.apache.maven.wagon:wagon-webdav:1.0-beta-2'
+
+    queriesCompile 'com.sun.codemodel:codemodel:2.6'
+    queriesCompile 'org.slf4j:slf4j-log4j12:1.7.5'
+
+    archives 'org.apache.maven.wagon:wagon-webdav:1.0-beta-2'
 }
 
-def schemaTargetDir = new File("${project.buildDir}/generated-sources")
+def generatedSourcesPath = "${project.buildDir}/generated-sources"
+def generatedQueriesPkg = "com.metabroadcast.atlas.glycerin.queries"
+def generatedXmlModelPkg = "com.metabroadcast.atlas.glycerin.model"
+def generatedSourcesDir = file(generatedSourcesPath)
+def generatedXmlModelDir = new File(generatedSourcesDir, generatedXmlModelPkg.replace('.', '/'))
+def generatedQueriesDir = new File(generatedSourcesDir, generatedQueriesPkg.replace('.', '/'))
 
-eclipse {
-    classpath {
-        downloadSources = true
-        downloadJavadoc = true
+task createGeneratedSourcesDir {
+    outputs.dir generatedSourcesDir
+    doLast{ project.mkdir(generatedSourcesPath) }
+}
+
+task generateXmlSource {
+    inputs.files sourceSets.main.resources.asFileTree.matching { include '**/*.xsd' }
+    outputs.dir generatedXmlModelDir
+    doLast {
+        ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJCTask', classpath: configurations.xjc.asPath)
+        ant.xjc(destdir: generatedSourcesPath, package: generatedXmlModelPkg, extension: 'true') {
+            schema(dir: new File('src/main/resources'), includes:'**/*.xsd')
+        }
+    }
+}
+generateXmlSource.dependsOn createGeneratedSourcesDir
+
+task fetchApiDescription {
+    doLast {
+        ant.get(
+            src: "http://d.bbc.co.uk/nitro/api?api_key="+System.properties['nitro.apikey'],
+            dest: new File('src/main/resources')
+        ) {
+            mapper(type:"regexp", from:".*api\\?.*",to:"api.xml")
+        }
     }
 }
 
 sourceSets {
     main {
         java {
-            srcDirs = ['src/main/java', schemaTargetDir.path]
+            srcDirs = [
+                'src/main/java',
+                generatedSourcesPath
+            ]
         }
     }
-}
-
-compileJava.doFirst {
-    schemaTargetDir.mkdirs()
-    ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJCTask', classpath: configurations.xjc.asPath)
-    ant.xjc(destdir: schemaTargetDir, extension: 'true') {
-        schema(dir: new File('src/main/resources'), includes:'*.xsd')
+    queries {
+        java { srcDirs = ['src/queries/java'] }
     }
 }
 
-sourceCompatibility = 1.6
-group 'com.metabroadcast.atlas.glycerin'
-version = '0.1.0'
+compileQueriesJava.classpath = compileJava.classpath + compileQueriesJava.classpath
+compileQueriesJava.source sourceSets.queries.allJava, generatedXmlModelDir, 
+    sourceSets.main.allJava.asFileTree.matching { 
+        include '**/GlycerinResponse.java' 
+        include '**/GlycerinQuery.java' 
+        include '**/model/*.java' 
+        include '**/queries/*.java' 
+    }
+compileQueriesJava.dependsOn generateXmlSource
+
+task generateQueries(type: JavaExec, dependsOn: compileQueriesJava) {
+    ext.descriptor = sourceSets.main.resources.asFileTree.matching { include '**/api.xml' }.asPath
+    inputs.file file(ext.descriptor)
+    outputs.dir generatedQueriesDir
+    classpath sourceSets.queries.output, configurations.compile, configurations.queriesCompile
+    args generatedSourcesPath, ext.descriptor, generatedQueriesPkg, generatedXmlModelPkg 
+    main 'com.metabroadcast.atlas.glycerin.generator.QueryGenerator'
+}
+
+compileJava.dependsOn generateQueries
+compileJava.source sourceSets.main.allJava, sourceSets.queries.allJava, generatedSourcesPath
+
+test {
+    useTestNG() { excludeGroups 'integration' }
+    testLogging { events "passed", "failed", "skipped" }
+}
+
+task integrationTest(type: Test, dependsOn: 'test') {
+    useTestNG() { includeGroups 'integration' }
+    testLogging { events "passed", "failed", "skipped" }
+    systemProperty "nitro.host", System.properties['nitro.host']
+    systemProperty "nitro.apikey", System.properties['nitro.apikey']
+}
+integrationTest.doFirst {
+    if (System.properties['nitro.host'] == null) {
+        logger.warn("'nitro.host' required")
+        throw new StopExecutionException()
+    }
+    if (System.properties['nitro.apikey'] == null) {
+        logger.warn("'nitro.apikey' required to run integration tests")
+        throw new StopExecutionException()
+    }
+}
+
 jar {
-    from sourceSets.main.output.classesDir
     baseName 'glycerin'
+    exclude('**/generator/**')
     manifest {
         attributes 'Implementation-Title': 'Glycerin', 'Implementation-Version': version
     }
 }
 
-test {
-    useTestNG()
-    testLogging {
-        events "passed", "failed", "skipped"
-    }
-}
-
 task sourceJar(type: Jar, dependsOn: classes) {
-    from sourceSets.main.allJava
+    from sourceSets.main.allJava, sourceSets.queries.allJava
+    exclude('**/generator/**')
+    classifier = 'sources'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    from javadoc.destinationDir
+    from javadoc.destinationDir, sourceSets.queries.allJava
+    exclude('**/generator/**')
+    classifier = 'javadoc'
 }
 
-//Get maven repo credentials
+artifacts { archives sourceJar, javadocJar }
+
+//Get maven repo credentials - TODO just provide these as system properties?
 def getMavenSettingsCredentials = {
     String userHome = System.getProperty( "user.home" );
     File mavenSettings = new File(userHome, ".m2/settings.xml")
@@ -99,14 +167,14 @@ def getCredentials = {
     for (entry in entries) {
         if ( entry."id".text() == "metabroadcast-mvn" ) {
             return [username: entry.username.text(), password: entry.password.text()]
+        }
     }
-  }
 }
 
 uploadArchives {
     def creds = getCredentials()
     repositories.mavenDeployer {
-        configuration = configurations.deployerJars
+        configuration = configurations.archives
         repository(url: "dav:http://mvn.metabroadcast.com:80/public-releases-local") {
             authentication(userName: creds["username"], password: creds["password"])
         }

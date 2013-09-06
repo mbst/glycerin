@@ -1,0 +1,312 @@
+package com.metabroadcast.atlas.glycerin.generator;
+
+import static com.google.common.base.Preconditions.checkState;
+
+import java.util.List;
+import java.util.Map;
+
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+
+import com.metabroadcast.atlas.glycerin.model.Feed;
+import com.metabroadcast.atlas.glycerin.model.Filter;
+import com.metabroadcast.atlas.glycerin.model.Option;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.metabroadcast.atlas.glycerin.queries.BaseApiQuery;
+import com.sun.codemodel.internal.JBlock;
+import com.sun.codemodel.internal.JClass;
+import com.sun.codemodel.internal.JClassAlreadyExistsException;
+import com.sun.codemodel.internal.JCodeModel;
+import com.sun.codemodel.internal.JDefinedClass;
+import com.sun.codemodel.internal.JEnumConstant;
+import com.sun.codemodel.internal.JExpr;
+import com.sun.codemodel.internal.JFieldVar;
+import com.sun.codemodel.internal.JInvocation;
+import com.sun.codemodel.internal.JMethod;
+import com.sun.codemodel.internal.JMod;
+import com.sun.codemodel.internal.JPackage;
+import com.sun.codemodel.internal.JType;
+import com.sun.codemodel.internal.JVar;
+
+
+public class FeedQueryGenerator {
+    
+    private static final String MODEL_PKG = "com.metabroadcast.atlas.glycerin.model.";
+    private final JCodeModel model;
+    private final JPackage pkg;
+    
+    private final JClass parent;
+    private final JClass precs;
+    private final JClass immutableList;
+    private final JClass immutableMap;
+    private final JClass immutableMapBldr;
+
+    private static final ImmutableMap<String, Class<?>> typeMap = ImmutableMap.<String, Class<?>>builder()
+        .put("integer", Integer.class)
+        .put("datetime", DateTime.class)
+        .put("string", String.class)
+        .put("ID", String.class)
+        .put("PID", String.class)
+        .put("character", Character.class)
+        .put("boolean", Boolean.class)
+        .put("date", LocalDate.class)
+        .build();
+
+
+    public FeedQueryGenerator(JCodeModel model, JPackage pkg) {
+        this.model = model;
+        this.pkg = pkg;
+        this.parent = model.directClass(BaseApiQuery.class.getCanonicalName());
+        this.precs = model.directClass(Preconditions.class.getCanonicalName());
+        this.immutableList = model.directClass(ImmutableList.class.getCanonicalName());
+        this.immutableMap = model.directClass(ImmutableMap.class.getCanonicalName());
+        this.immutableMapBldr = model.directClass(ImmutableMap.Builder.class.getCanonicalName())
+                .narrow(String.class, Object.class);
+    }
+
+    public void generateQuery(Feed feed) {
+        try {
+            JClass transformedType = getTransformedType(feed);
+            if (transformedType == null) {
+                return;
+            }
+            
+            JDefinedClass cls = pkg._class(JMod.PUBLIC|JMod.FINAL, String.format("%sQuery", feed.getName()));
+            cls._extends(parent.narrow(transformedType));
+            
+            if (feed.getTitle()!=null) {
+                cls.javadoc().add(String.format("<p>%s</p>",feed.getTitle()));
+            }
+            
+            addResourcePath(cls, feed);
+            addResultTypeMethod(model, cls, transformedType);
+            
+            JMethod constructor = cls.constructor(JMod.PRIVATE);
+            constructor.param(stringObjectMap(model), "params");
+            constructor.body().invoke("super")
+                .arg(constructor.listParams()[0]);
+            
+            JDefinedClass bldrCls = cls._class(JMod.PUBLIC|JMod.STATIC|JMod.FINAL, "Builder");
+            JVar paramBuilder = bldrCls.field(JMod.PRIVATE|JMod.FINAL, immutableMapBldr, "params")
+                .init(immutableMap.staticInvoke("builder"));
+            
+            for (Filter filter : feed.getFilters().getFilter()) {
+                if (!Boolean.TRUE.equals(filter.isDeprecated())) {
+                    addWithersFor(filter, bldrCls, paramBuilder);
+                }
+            }
+            
+            JMethod bldMthd = bldrCls.method(JMod.PUBLIC, cls, "build");
+            bldMthd.body()._return(JExpr._new(cls).arg(paramBuilder.invoke("build")));
+            
+            //TODO: add sorts + mixins
+            
+            cls.method(JMod.PUBLIC|JMod.STATIC|JMod.FINAL, bldrCls, "builder")
+                .body()._return(JExpr._new(bldrCls));
+            
+        } catch (Exception e) { 
+            throw new IllegalStateException(e);
+        }        
+    }
+
+    private JClass getTransformedType(Feed feed) {
+        Class<?> cls = null;
+        String name = feed.getName();
+        cls = tryLoadClass(MODEL_PKG + name);
+        if (cls == null) {//attempt in possible naive singular.
+            cls = tryLoadClass(MODEL_PKG + name.substring(0, name.length()-1));
+        }
+        if (cls == null) {
+            cls = Object.class;
+        }
+        return model.ref(cls);
+    }
+
+    private Class<?> tryLoadClass(String name) {
+        try {
+            return Class.forName(name);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
+
+    private JClass stringObjectMap(JCodeModel model) {
+        return model.ref(Map.class).narrow(String.class, Object.class);
+    }
+
+    private void addWithersFor(Filter filter, JDefinedClass bldrCls, JVar paramBuilder) throws ClassNotFoundException, JClassAlreadyExistsException {
+        JDefinedClass cls = (JDefinedClass) bldrCls.parentContainer();
+        
+        JFieldVar field = cls.field(JMod.PRIVATE|JMod.STATIC|JMod.FINAL, String.class, filter.getName().toUpperCase());
+        field.init(JExpr.lit(filter.getName()));
+        
+        JClass paramType = mapType(filter);
+        if (Boolean.TRUE.equals(filter.isMultipleValues())) {
+            JMethod iterableWither = addIterableWither(filter, bldrCls, paramBuilder, field, paramType);
+            addVarArgsWither(filter, iterableWither, bldrCls, paramType);
+        } else {
+            addWither(filter, bldrCls, paramBuilder, field, paramType);
+        }
+    }
+
+    private void addVarArgsWither(Filter filter, JMethod wither, JDefinedClass bldrCls, JClass paramType) throws JClassAlreadyExistsException {
+        JMethod method = bldrCls.method(wither.mods().getValue(), 
+                wither.type(), wither.name());
+        if (filter.getTitle()!=null) {
+            method.javadoc().add(String.format("<p>%s</p>",filter.getTitle()));
+        }
+        JVar param = method.varParam(paramType, wither.listParams()[0].name());
+        method.body()._return(JExpr.invoke(wither).arg(immutableList.staticInvoke("copyOf").arg(param)));
+    }
+
+    private void addWither(Filter filter, JDefinedClass bldrCls, JVar paramBuilder, JFieldVar field, JClass paramType) throws JClassAlreadyExistsException {
+        JMethod method = createWitherMethod(filter, bldrCls);
+        if (filter.getTitle()!=null) {
+            method.javadoc().add(String.format("<p>%s</p>",filter.getTitle()));
+        }
+        JVar param = addParam(filter, method, paramType);
+        JBlock mthdBody = method.body();
+        boolean needsNullCheck = true;
+        if (filter.getMinValue() != null) {
+            mthdBody.add(precs.staticInvoke("checkNotNull").arg(param));
+            needsNullCheck = false;
+            int min = filter.getMinValue().intValue();
+            mthdBody.add(precs.staticInvoke("checkArgument")
+                .arg(JExpr.lit(min).lte(param))
+                .arg(JExpr.lit(param.name() + ": %s < " + min))
+                .arg(param)
+            );
+        }
+        if (filter.getMaxValue() != null) {
+            if (needsNullCheck) {
+                mthdBody.add(precs.staticInvoke("checkNotNull").arg(param));
+                needsNullCheck = false;
+            }
+            int max = filter.getMaxValue().intValue();
+            mthdBody.add(precs.staticInvoke("checkArgument")
+                .arg(JExpr.lit(max).gte(param))
+                .arg(JExpr.lit(param.name() + ": %s > " + max))
+                .arg(param)
+            ); 
+        }
+        JInvocation putIntoMap = paramBuilder.invoke("put")
+                .arg(field);
+        if (needsNullCheck) {
+            putIntoMap.arg(precs.staticInvoke("checkNotNull").arg(param));
+        } else {
+            putIntoMap.arg(param);
+        }
+        mthdBody.add(putIntoMap);
+        mthdBody._return(JExpr._this());
+    }
+
+    private JMethod addIterableWither(Filter filter, JDefinedClass bldrCls, JVar paramBuilder, JFieldVar field, JClass paramType) throws JClassAlreadyExistsException {
+        JMethod method = createWitherMethod(filter, bldrCls);
+        if (filter.getTitle()!=null) {
+            method.javadoc().add(String.format("<p>%s</p>",filter.getTitle()));
+        }
+        JVar param = addParam(filter, method, iterable(paramType));
+        JBlock mthdBody = method.body();
+        mthdBody.add(paramBuilder.invoke("put")
+                .arg(field)
+                .arg(immutableList.staticInvoke("copyOf").arg(param)));
+        mthdBody._return(JExpr._this());
+        return method;
+    }
+
+    private JVar addParam(Filter filter, JMethod method, JType paramType) {
+        return method.param(paramType, camel(filter.getName(), false));
+    }
+
+    private JMethod createWitherMethod(Filter filter, JDefinedClass bldrCls) {
+        String filterMethodName = "with" + camel(filter.getName(), true); 
+        return bldrCls.method(JMod.PUBLIC, bldrCls, filterMethodName);
+    }
+    
+    private JType iterable(JClass mapType) {
+        return model.directClass("Iterable").narrow(mapType);
+    }
+            
+    private JClass mapType(Filter filter) throws JClassAlreadyExistsException {
+        if (!(filter.getOption() == null || filter.getOption().isEmpty())){
+            return getParamTypeEnum(filter);
+        }
+        String type = filter.getType();
+        Class<?> typeCls = typeMap.get(type);
+        checkState(typeCls != null, "Unexpected type: %s", type);
+        return model.ref(typeCls);
+    }
+
+    private JClass getParamTypeEnum(Filter filter) throws JClassAlreadyExistsException {
+        String enumName = camel(filter.getName(), true) + "Option";
+        if (pkg.isDefined(enumName)) {
+            return pkg._getClass(enumName);
+        }
+        List<Option> options = filter.getOption();
+        if (options.size() == 1) {/*turn into '*Only' method?*/}
+        if (options.size() == 2) {
+            if (ImmutableSet.of("true","false").equals(
+                    ImmutableSet.of(options.get(0).getValue().toLowerCase(),
+                        options.get(1).getValue().toLowerCase()
+                    )
+                )) {
+                return model.ref(Boolean.class);
+            }
+        }
+        
+        
+        JDefinedClass valueEnum = pkg._enum(enumName);
+        
+        JFieldVar valField = valueEnum.field(JMod.PRIVATE|JMod.FINAL, String.class, "value");
+        JMethod ctor = valueEnum.constructor(JMod.PRIVATE);
+        JVar param = ctor.param(String.class, "val");
+        ctor.body().assign(valField, param);
+        
+        JMethod toString = valueEnum.method(JMod.PUBLIC, String.class, "toString");
+        toString.annotate(Override.class);
+        toString.body()._return(valField);
+        
+        for (Option option : options) {
+            String optionName = option.getValue().toUpperCase().replace(' ', '_');
+            JEnumConstant optionCst = valueEnum.enumConstant(optionName);
+            optionCst.arg(JExpr.lit(option.getValue().replace(' ', '+')));
+        }
+        return valueEnum;
+    }
+
+    private String camel(String name, boolean upperInitial) {
+        char initial = name.charAt(0);
+        StringBuilder converted = new StringBuilder()
+            .append(upperInitial ? Character.toUpperCase(initial) : initial);
+        
+        for (int i = 1; i < name.length(); i++) {
+            char chr = name.charAt(i);
+            if (chr == '_' && i+1 < name.length()) {
+                converted.append(Character.toUpperCase(name.charAt(++i)));
+            } else {
+                converted.append(chr);
+            }
+        }
+        return converted.toString();
+    }
+
+    private void addResultTypeMethod(JCodeModel model, JDefinedClass cls, JClass transformedType) {
+        JClass classCls = model.ref(Class.class);
+        JMethod method = cls.method(JMod.PROTECTED|JMod.FINAL, classCls.narrow(transformedType), "resultsType");
+        method.body()._return(JExpr.dotclass(transformedType));
+        method.annotate(Override.class);
+    }
+
+    private void addResourcePath(JDefinedClass cls, Feed feed) {
+        JFieldVar field = cls.field(JMod.PRIVATE|JMod.STATIC|JMod.FINAL, String.class, "RESOURCE_PATH");
+        field.init(JExpr.lit(feed.getHref()));
+        
+        JMethod method = cls.method(JMod.PROTECTED|JMod.FINAL, String.class, "resourcePath");
+        method.annotate(Override.class);
+        method.body()._return(field);
+    }
+
+}
