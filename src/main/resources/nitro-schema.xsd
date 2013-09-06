@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.bbc.co.uk/nitro/" elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns="http://www.bbc.co.uk/nitro/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="nitro">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element minOccurs="0" ref="pagination"/>
+	<xs:choice minOccurs="0" maxOccurs="unbounded">
+	  <xs:element ref="results"/>
+	  <xs:element ref="filters"/>
+	  <xs:element ref="sorts"/>
+	  <xs:element ref="mixins"/>
+	</xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="pagination">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="previous" minOccurs="0"/>
+	<xs:element ref="next" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="next">
+    <xs:complexType>
+      <xs:attribute name="href" use="required" type="xs:anyURI"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="previous">
+    <xs:complexType>
+      <xs:attribute name="href" use="required" type="xs:anyURI"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="results">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+	<xs:element ref="brand"/>
+	<xs:element ref="series"/>
+	<xs:element ref="episode"/>
+	<xs:element ref="clip"/>
+	<xs:element ref="version"/>
+	<xs:element ref="broadcast"/>
+	<xs:element ref="service"/>
+	<xs:element ref="contributor"/>
+	<xs:element ref="availability"/>
+      </xs:choice>
+      <xs:attribute name="more_than" type="xs:integer"/>
+      <xs:attribute name="total" type="xs:integer"/>
+      <xs:attribute name="page" use="required" type="xs:integer"/>
+      <xs:attribute name="page_size" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="brand">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="pid"/>
+	<xs:element ref="partner"/>
+	<xs:element ref="updated_time"/>
+	<xs:element ref="title" minOccurs="0"/>
+	<xs:element ref="synopses" minOccurs="0"/>
+	<xs:element ref="image" minOccurs="0"/>
+	<xs:group ref="release_date_group" minOccurs="0"/>
+	<xs:element ref="master_brand" minOccurs="0"/>
+	<xs:element ref="franchises" minOccurs="0"/>
+	<xs:element ref="expected_child_count" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="series">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="pid"/>
+	<xs:element ref="partner"/>
+	<xs:element ref="updated_time"/>
+	<xs:element ref="title" minOccurs="0"/>
+	<xs:element ref="synopses" minOccurs="0"/>
+	<xs:element ref="image" minOccurs="0"/>
+	<xs:group ref="release_date_group" minOccurs="0"/>
+	<xs:element ref="master_brand" minOccurs="0"/>
+	<xs:element ref="series_of" minOccurs="0"/>
+	<xs:element ref="ancestors" minOccurs="0"/>
+	<xs:element ref="expected_child_count" minOccurs="0"/>
+	<xs:element ref="ancestors_titles" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="episode">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="pid"/>
+	<xs:element ref="partner"/>
+	<xs:element ref="updated_time"/>
+	<xs:element ref="title" minOccurs="0"/>
+	<xs:element ref="synopses" minOccurs="0"/>
+	<xs:element ref="presentation_title" minOccurs="0"/>
+	<xs:element ref="media_type" minOccurs="0"/>
+	<xs:element ref="image" minOccurs="0"/>
+	<xs:group ref="release_date_group" minOccurs="0"/>
+	<xs:element ref="is_stacked" minOccurs="0"/>
+	<xs:element ref="has_guidance" minOccurs="0"/>
+	<xs:element ref="master_brand" minOccurs="0"/>
+	<xs:element ref="episode_of" minOccurs="0"/>
+	<xs:element ref="genre_groups" minOccurs="0"/>
+	<xs:element ref="formats" minOccurs="0"/>
+	<xs:element ref="ancestors" minOccurs="0"/>
+	<xs:element ref="ancestors_titles" minOccurs="0"/>
+	<xs:group ref="original_version_duration" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="clip">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="pid"/>
+	<xs:element ref="partner"/>
+	<xs:element ref="updated_time"/>
+	<xs:element ref="title" minOccurs="0"/>
+	<xs:element ref="synopses" minOccurs="0"/>
+	<xs:element ref="media_type" minOccurs="0"/>
+	<xs:element ref="image" minOccurs="0"/>
+	<xs:group ref="release_date_group" minOccurs="0"/>
+	<xs:element ref="master_brand" minOccurs="0"/>
+	<xs:element ref="clip_of" minOccurs="0"/>
+	<xs:element ref="genre_groups" minOccurs="0"/>
+	<xs:element ref="formats" minOccurs="0"/>
+	<xs:element ref="ancestors" minOccurs="0"/>
+	<xs:element ref="ancestors_titles" minOccurs="0"/>
+	<xs:group ref="original_version_duration" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="version">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="pid"/>
+	<xs:element ref="updated_time"/>
+	<xs:element name="duration" minOccurs="0" type="xs:duration"/>
+	<xs:element name="aspect_ratio" minOccurs="0" type="xs:string"/>
+	<xs:element ref="version_types" minOccurs="0"/>
+	<xs:element ref="warnings" minOccurs="0"/>
+	<xs:element ref="version_of" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="broadcast">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="pid"/>
+	<xs:element ref="partner"/>
+	<xs:element name="service" type="serviceReference" minOccurs="0"/>
+	<xs:element ref="updated_time" minOccurs="0"/>
+	<xs:element ref="published_time" minOccurs="0"/>
+	<xs:element ref="tx_time" minOccurs="0"/>
+	<!--
+        <xs:element ref="accurate_time" minOccurs="0"/>
+        <xs:element ref="credits_time" minOccurs="0"/>
+        <xs:element ref="schedule_date" minOccurs="0"/>
+        <xs:element ref="is_signed" minOccurs="0"/>
+        <xs:element ref="master_brand" minOccurs="0"/>
+-->
+	<xs:element ref="ids" minOccurs="0"/>
+	<xs:element ref="is_blanked" minOccurs="0"/>
+	<xs:element ref="is_repeat" minOccurs="0"/>
+	<xs:element ref="is_audio_described" minOccurs="0"/>
+	<xs:element ref="broadcast_of" minOccurs="0" maxOccurs="unbounded"/>
+	<xs:element ref="image" minOccurs="0"/>
+	<xs:element ref="ancestors_titles" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="service">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="sid"/>
+	<xs:element ref="partner"/>
+	<xs:element ref="updated_time" minOccurs="0"/>
+	<xs:element ref="name" minOccurs="0"/>
+	<xs:element ref="description" minOccurs="0"/>
+	<xs:element ref="region" minOccurs="0"/>
+	<xs:element ref="type" minOccurs="0"/>
+	<xs:element ref="media_type" minOccurs="0"/>
+	<xs:element ref="is_concrete" minOccurs="0"/>
+	<xs:element ref="is_streamable" minOccurs="0"/>
+	<xs:element ref="is_downloadable" minOccurs="0"/>
+	<xs:element ref="date_range" minOccurs="0"/>
+	<xs:element ref="master_brand" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="contributor">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="pid"/>
+	<xs:element ref="partner"/>
+	<xs:element ref="ids" minOccurs="0"/>
+	<xs:element ref="canonical_contributor" minOccurs="0"/>
+	<xs:element ref="type" minOccurs="0"/>
+	<xs:group ref="contributor_name" minOccurs="0"/>
+	<xs:element ref="disambiguation" minOccurs="0"/>
+	<xs:element ref="contributor_to" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="availability">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="status"/>
+	<xs:element ref="scheduled_time" minOccurs="0"/>
+	<xs:element ref="actual_start" minOccurs="0"/>
+	<xs:element ref="media_set" minOccurs="0" maxOccurs="unbounded"/>
+	<xs:element ref="availability_of" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:group name="contributor_name">
+    <xs:sequence>
+      <xs:element name="name">
+	<xs:complexType>
+	  <xs:sequence>
+	    <xs:element name="presentation" type="xs:token" minOccurs="0"/>
+	    <xs:element name="title" type="xs:token" minOccurs="0"/>
+	    <xs:element name="given" type="xs:token" minOccurs="0"/>
+	    <xs:element name="family" type="xs:token" minOccurs="0"/>
+	  </xs:sequence>
+	  <xs:attribute name="lang" type="xs:token"/>
+	</xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:element name="pid" type="pid"/>
+  <xs:element name="partner" type="pid"/>
+  <xs:element name="updated_time" type="xs:dateTime"/>
+  <xs:element name="title" type="xs:token"/>
+  <xs:element name="presentation_title" type="xs:token"/>
+  <xs:element name="synopses">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="short" minOccurs="0"/>
+	<xs:element ref="medium" minOccurs="0"/>
+	<xs:element ref="long" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="short" type="xs:token"/>
+  <xs:element name="medium" type="xs:token"/>
+  <xs:element name="long" type="xs:token"/>
+  <xs:element name="media_type">
+    <xs:simpleType>
+      <xs:restriction base="xs:token">
+	<xs:enumeration value="Video"/>
+	<xs:enumeration value="Audio"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+  <xs:group name="release_date_group">
+    <xs:choice>
+      <xs:element name="release_date" type="xs:date"/>
+      <xs:element name="release_year_month" type="xs:gYearMonth"/>
+      <xs:element name="release_year" type="xs:gYear"/>
+    </xs:choice>
+  </xs:group>
+  <xs:element name="is_stacked" type="xs:boolean"/>
+  <xs:element name="master_brand">
+    <xs:complexType>
+      <xs:attribute name="href" use="required"/>
+      <xs:attribute name="mid" use="required" type="mid"/>
+      <xs:attribute name="result_type" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="series_of" type="pidReference"/>
+  <xs:element name="episode_of" type="pidReference"/>
+  <xs:element name="clip_of" type="pidReference"/>
+  <xs:element name="version_of" type="pidReference"/>
+  <xs:element name="genre_groups" type="reference"/>
+  <xs:element name="formats" type="reference"/>
+  <xs:element name="ancestors" type="reference"/>
+  <xs:element name="franchises" type="reference"/>
+  <xs:element name="ancestors_titles">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="brand" minOccurs="0">
+	  <xs:complexType>
+	    <xs:sequence>
+	      <xs:element ref="pid"/>
+	      <xs:element ref="title" minOccurs="0"/>
+	    </xs:sequence>
+	  </xs:complexType>
+	</xs:element>
+	<xs:element name="series" minOccurs="0" maxOccurs="5">
+	  <xs:complexType>
+	    <xs:sequence>
+	      <xs:element ref="pid"/>
+	      <xs:element ref="title" minOccurs="0"/>
+	    </xs:sequence>
+	  </xs:complexType>
+	</xs:element>
+	<xs:element name="episode" minOccurs="0">
+	  <xs:complexType>
+	    <xs:sequence>
+	      <xs:element ref="pid"/>
+	      <xs:element ref="title" minOccurs="0"/>
+	    </xs:sequence>
+	  </xs:complexType>
+	</xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="expected_child_count" type="xs:integer"/>
+  <xs:group name="original_version_duration">
+    <xs:sequence>
+      <xs:element name="version" minOccurs="0">
+	<xs:complexType>
+	  <xs:sequence>
+	    <xs:element name="duration" minOccurs="0" type="xs:duration"/>
+	  </xs:sequence>
+	  <xs:attribute name="pid" type="pid" use="required"/>
+	  <xs:attribute name="href" use="required"/>
+	</xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:element name="published_time" type="broadcastTime"/>
+  <xs:element name="accurate_time" type="broadcastTime"/>
+  <xs:element name="credits_time">
+    <xs:complexType>
+      <xs:attribute name="squeeze_start" type="xs:dateTime"/>
+      <xs:attribute name="squeeze_end" type="xs:dateTime"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="schedule_date" type="xs:date"/>
+  <xs:element name="is_blanked" type="xs:boolean"/>
+  <xs:element name="is_repeat" type="xs:boolean"/>
+  <xs:element name="is_signed" type="xs:boolean"/>
+  <xs:element name="is_audio_described" type="xs:boolean"/>
+  <xs:element name="ids">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="id" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="id">
+    <xs:complexType>
+      <xs:simpleContent>
+	<xs:extension base="xs:string">
+	  <xs:attribute name="type" type="xs:NCName"/>
+	  <xs:attribute name="authority" type="xs:NCName"/>
+	</xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="broadcast_of" type="pidReference"/>
+  <xs:element name="broadcaster">
+    <xs:complexType>
+      <xs:attribute name="href" use="required"/>
+      <xs:attribute name="sid" use="required" type="sid"/>
+      <xs:attribute name="result_type" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="version_type">
+    <xs:complexType>
+      <xs:attribute name="id" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="version_types">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="version_type" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="warning_text">
+    <xs:complexType>
+      <xs:simpleContent>
+	<xs:extension base="xs:string">
+	  <xs:attribute name="length" type="xs:string"/>
+	</xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="warning">
+    <xs:complexType>
+      <xs:simpleContent>
+	<xs:extension base="xs:string">
+	  <xs:attribute name="href" type="xs:anyURI"/>
+	  <xs:attribute name="short_description" type="xs:string"/>
+	  <xs:attribute name="warning_code" type="xs:string"/>
+	</xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="warnings">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="warning_text" minOccurs="0" maxOccurs="unbounded"/>
+	<xs:element ref="warning" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="has_guidance" type="xs:boolean"/>
+  <xs:element name="sid" type="sid"/>
+  <xs:element name="name" type="xs:token"/>
+  <xs:element name="description" type="xs:token"/>
+  <xs:element name="region" type="xs:token"/>
+  <xs:element name="type" type="xs:token"/>
+  <xs:element name="is_concrete" type="xs:boolean"/>
+  <xs:element name="is_streamable" type="xs:boolean"/>
+  <xs:element name="is_downloadable" type="xs:boolean"/>
+  <xs:element name="date_range" type="dateRange"/>
+  <xs:simpleType name="pid">
+    <xs:restriction base="xs:NMTOKEN">
+      <xs:pattern value="([a-z0-9\.\-]+|.*PID.*)"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="mid">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:simpleType name="sid">
+    <xs:restriction base="xs:NMTOKEN">
+      <xs:pattern value="[a-z0-9A-Z_\.\-]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="pidReference">
+    <xs:attribute name="href" use="required"/>
+    <xs:attribute name="pid" use="required" type="pid"/>
+    <xs:attribute name="position" type="xs:integer"/>
+    <xs:attribute name="result_type" use="required" type="xs:NCName"/>
+  </xs:complexType>
+  <xs:complexType name="reference">
+    <xs:attribute name="href" use="required"/>
+    <xs:attribute name="result_type" use="required" type="xs:NCName"/>
+  </xs:complexType>
+  <xs:complexType name="dateRange">
+    <xs:attribute name="start" type="xs:dateTime"/>
+    <xs:attribute name="end" type="xs:dateTime"/>
+  </xs:complexType>
+  <xs:complexType name="broadcastTime">
+    <xs:complexContent>
+      <xs:extension base="dateRange">
+	<xs:attribute name="duration" type="xs:duration"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="tx_time">
+    <xs:complexType>
+      <xs:attribute name="start" type="xs:dateTime"/>
+      <xs:attribute name="end" type="xs:dateTime"/>
+      <xs:attribute name="credits_showing" type="xs:dateTime"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="image">
+    <xs:complexType>
+      <xs:attribute name="pid" type="pid"/>
+      <xs:attribute name="template_url" use="required" type="xs:anyURI"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="serviceReference">
+    <xs:attribute name="result_type" use="required" type="xs:NCName"/>
+    <xs:attribute name="href" use="required"/>
+    <xs:attribute name="sid" use="required" type="xs:string"/>
+  </xs:complexType>
+  <xs:element name="feeds">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element minOccurs="0" ref="feed"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="feed">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="filter"/>
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="sort"/>
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="mixin"/>
+      </xs:sequence>
+      <xs:attribute name="href" use="required" type="xs:anyURI"/>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+      <xs:attribute name="rel" use="required" type="xs:NCName"/>
+      <xs:attribute name="title" use="required" type="xs:token"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="filters">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="filter"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="sorts">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="sort"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="mixins">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="mixin"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="filter">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="option"/>
+      </xs:sequence>
+      <xs:attribute name="deprecated" type="xs:boolean"/>
+      <xs:attribute name="deprecated-since" type="xs:date"/>
+      <xs:attribute name="guaranteed-until" type="xs:date"/>
+      <xs:attribute name="max_value" type="xs:integer"/>
+      <xs:attribute name="min_value" type="xs:integer"/>
+      <xs:attribute name="multiple_values" type="xs:boolean"/>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+      <xs:attribute name="title" use="required" type="xs:token"/>
+      <xs:attribute name="type" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="option">
+    <xs:complexType>
+      <xs:attribute name="href" use="required" type="xs:anyURI"/>
+      <xs:attribute name="value" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="sort">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="sort_direction"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+      <xs:attribute name="is_default" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="sort_direction">
+    <xs:complexType>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+      <xs:attribute name="value" use="required" type="xs:string"/>
+      <xs:attribute name="is_default" use="required" type="xs:NCName"/>
+      <xs:attribute name="href" use="required" type="xs:anyURI"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="mixin">
+    <xs:complexType>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+      <xs:attribute name="href" use="required" type="xs:anyURI"/>
+      <xs:attribute name="title" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="canonical_contributor" type="xs:token"/>
+  <xs:element name="disambiguation" type="xs:token"/>
+  <xs:element name="contributor_to">
+    <xs:complexType>
+      <xs:attribute name="result_type" type="xs:token" use="required"/>
+      <xs:attribute name="href" type="xs:anyURI" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- referenced elements for availabilities feed -->
+  <xs:element name="status">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+	<xs:enumeration value="available"/>
+	<xs:enumeration value="unavailable"/>
+	<xs:enumeration value="pending"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+  <xs:element name="scheduled_time">
+    <xs:complexType>
+      <xs:attribute name="start" type="xs:dateTime"/>
+      <xs:attribute name="end" type="xs:dateTime"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="actual_start" type="xs:dateTime"/>
+  <xs:element name="media_set" type="xs:token"/>
+  <xs:element name="availability_of">
+    <xs:complexType>
+      <xs:attribute name="result_type" type="xs:token" use="required"/>
+      <xs:attribute name="pid" type="pid" use="required"/>
+      <xs:attribute name="href" type="xs:anyURI" use="required"/>
+      <xs:attribute name="type" type="xs:token"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
