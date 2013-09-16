@@ -10,6 +10,7 @@ import org.joda.time.LocalDate;
 
 import com.metabroadcast.atlas.glycerin.model.Feed;
 import com.metabroadcast.atlas.glycerin.model.Filter;
+import com.metabroadcast.atlas.glycerin.model.Mixin;
 import com.metabroadcast.atlas.glycerin.model.Option;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -34,6 +35,7 @@ import com.sun.codemodel.internal.JVar;
 
 public class FeedQueryGenerator {
     
+    private static final int privateStaticFinal = JMod.PRIVATE|JMod.STATIC|JMod.FINAL;
     private static final String MODEL_PKG = "com.metabroadcast.atlas.glycerin.model.";
     private final JCodeModel model;
     private final JPackage pkg;
@@ -83,26 +85,8 @@ public class FeedQueryGenerator {
             
             addResourcePath(cls, feed);
             addResultTypeMethod(model, cls, transformedType);
-            
-            JMethod constructor = cls.constructor(JMod.PRIVATE);
-            constructor.param(stringObjectMap(model), "params");
-            constructor.body().invoke("super")
-                .arg(constructor.listParams()[0]);
-            
-            JDefinedClass bldrCls = cls._class(JMod.PUBLIC|JMod.STATIC|JMod.FINAL, "Builder");
-            JVar paramBuilder = bldrCls.field(JMod.PRIVATE|JMod.FINAL, immutableMapBldr, "params")
-                .init(immutableMap.staticInvoke("builder"));
-            
-            for (Filter filter : feed.getFilters().getFilter()) {
-                if (!Boolean.TRUE.equals(filter.isDeprecated())) {
-                    addWithersFor(filter, bldrCls, paramBuilder);
-                }
-            }
-            
-            JMethod bldMthd = bldrCls.method(JMod.PUBLIC, cls, "build");
-            bldMthd.body()._return(JExpr._new(cls).arg(paramBuilder.invoke("build")));
-            
-            //TODO: add sorts + mixins
+            addContstructor(cls);
+            JDefinedClass bldrCls = addBuilderCls(feed, cls);
             
             cls.method(JMod.PUBLIC|JMod.STATIC|JMod.FINAL, bldrCls, "builder")
                 .body()._return(JExpr._new(bldrCls));
@@ -110,6 +94,72 @@ public class FeedQueryGenerator {
         } catch (Exception e) { 
             throw new IllegalStateException(e);
         }        
+    }
+
+    private JDefinedClass addBuilderCls(Feed feed, JDefinedClass cls)
+            throws JClassAlreadyExistsException, ClassNotFoundException {
+        JDefinedClass bldrCls = cls._class(JMod.PUBLIC|JMod.STATIC|JMod.FINAL, "Builder");
+        JVar paramBuilder = bldrCls.field(JMod.PRIVATE|JMod.FINAL, immutableMapBldr, "params")
+            .init(immutableMap.staticInvoke("builder"));
+        
+        for (Filter filter : feed.getFilters().getFilter()) {
+            if (!Boolean.TRUE.equals(filter.isDeprecated())) {
+                addWithersFor(filter, bldrCls, paramBuilder);
+            }
+        }
+        
+        if (feed.getMixins() != null && feed.getMixins().getMixin() != null) {
+            JDefinedClass mixinEnum = getMixinEnum(feed);
+            for (Mixin mixin : feed.getMixins().getMixin()) {
+                String mixinName = mixin.getName().toUpperCase().replace(' ', '_');
+                JEnumConstant mixinCnst = mixinEnum.enumConstant(mixinName);
+                mixinCnst.arg(JExpr.lit(mixin.getName().replace(' ', '+')));
+            }
+            JFieldVar field = cls.field(privateStaticFinal, String.class, "MIXINS");
+            field.init(JExpr.lit("mixins"));
+            JMethod iterWither = bldrCls.method(JMod.PUBLIC, bldrCls, "withMixins");
+            JVar param = iterWither.param(iterable(mixinEnum), "mixins");
+            JBlock mthdBody = iterWither.body();
+            mthdBody.add(paramBuilder.invoke("put")
+                    .arg(field)
+                    .arg(immutableList.staticInvoke("copyOf").arg(param)));
+            mthdBody._return(JExpr._this());
+            JMethod varArgWither = bldrCls.method(JMod.PUBLIC, bldrCls, "withMixins");
+            param = varArgWither.varParam(mixinEnum, "mixins");
+            varArgWither.body()._return(JExpr.invoke(iterWither)
+                    .arg(immutableList.staticInvoke("copyOf").arg(param)));
+        }
+        
+        JMethod bldMthd = bldrCls.method(JMod.PUBLIC, cls, "build");
+        bldMthd.body()._return(JExpr._new(cls).arg(paramBuilder.invoke("build")));
+        
+        //TODO: add sorts
+        return bldrCls;
+    }
+
+    private JDefinedClass getMixinEnum(Feed feed) throws JClassAlreadyExistsException {
+        String enumName = camel(feed.getName(), true) + "Mixin";
+        if (pkg.isDefined(enumName)) {
+            return pkg._getClass(enumName);
+        }
+        JDefinedClass valueEnum = pkg._enum(enumName);
+        
+        JFieldVar valField = valueEnum.field(JMod.PRIVATE|JMod.FINAL, String.class, "value");
+        JMethod ctor = valueEnum.constructor(JMod.PRIVATE);
+        JVar param = ctor.param(String.class, "val");
+        ctor.body().assign(valField, param);
+        
+        JMethod toString = valueEnum.method(JMod.PUBLIC, String.class, "toString");
+        toString.annotate(Override.class);
+        toString.body()._return(valField);
+        return valueEnum;
+    }
+
+    private void addContstructor(JDefinedClass cls) {
+        JMethod constructor = cls.constructor(JMod.PRIVATE);
+        constructor.param(stringObjectMap(model), "params");
+        constructor.body().invoke("super")
+            .arg(constructor.listParams()[0]);
     }
 
     private JClass getTransformedType(Feed feed) {
@@ -140,7 +190,7 @@ public class FeedQueryGenerator {
     private void addWithersFor(Filter filter, JDefinedClass bldrCls, JVar paramBuilder) throws ClassNotFoundException, JClassAlreadyExistsException {
         JDefinedClass cls = (JDefinedClass) bldrCls.parentContainer();
         
-        JFieldVar field = cls.field(JMod.PRIVATE|JMod.STATIC|JMod.FINAL, String.class, filter.getName().toUpperCase());
+        JFieldVar field = cls.field(privateStaticFinal, String.class, filter.getName().toUpperCase());
         field.init(JExpr.lit(filter.getName()));
         
         JClass paramType = mapType(filter);
@@ -301,7 +351,7 @@ public class FeedQueryGenerator {
     }
 
     private void addResourcePath(JDefinedClass cls, Feed feed) {
-        JFieldVar field = cls.field(JMod.PRIVATE|JMod.STATIC|JMod.FINAL, String.class, "RESOURCE_PATH");
+        JFieldVar field = cls.field(privateStaticFinal, String.class, "RESOURCE_PATH");
         field.init(JExpr.lit(feed.getHref()));
         
         JMethod method = cls.method(JMod.PROTECTED|JMod.FINAL, String.class, "resourcePath");
