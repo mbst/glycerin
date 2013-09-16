@@ -4,6 +4,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
@@ -13,6 +16,8 @@ import com.google.common.net.HostSpecifier;
 
 class GlycerinHttpClient {
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+    
     private final HostSpecifier host;
     private final String apiKey;
     
@@ -31,7 +36,9 @@ class GlycerinHttpClient {
     }
     
     public <R, T> GlycerinResponse<T> get(GlycerinQuery<R, T> q) throws IOException {
-        return q.toResponse(requestFactory.buildGetRequest(urlFor(q)).execute().parseAs(q.type()));
+        HttpRequest getRequest = requestFactory.buildGetRequest(urlFor(q));
+        log.debug("{}", getRequest.getUrl());
+        return q.toResponse(getRequest.execute().parseAs(q.type()));
     }
     
     private GenericUrl urlFor(GlycerinQuery<?, ?> q) {
