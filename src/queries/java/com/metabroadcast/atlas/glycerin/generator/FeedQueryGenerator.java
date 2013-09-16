@@ -115,8 +115,8 @@ public class FeedQueryGenerator {
                 JEnumConstant mixinCnst = mixinEnum.enumConstant(mixinName);
                 mixinCnst.arg(JExpr.lit(mixin.getName().replace(' ', '+')));
             }
-            JFieldVar field = cls.field(privateStaticFinal, String.class, "MIXINS");
-            field.init(JExpr.lit("mixins"));
+            JFieldVar field = cls.field(privateStaticFinal, String.class, "MIXIN");
+            field.init(JExpr.lit("mixin"));
             JMethod iterWither = bldrCls.method(JMod.PUBLIC, bldrCls, "withMixins");
             JVar param = iterWither.param(iterable(mixinEnum), "mixins");
             JBlock mthdBody = iterWither.body();
