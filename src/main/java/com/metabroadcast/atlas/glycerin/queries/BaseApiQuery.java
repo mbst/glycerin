@@ -8,6 +8,7 @@ import java.util.Map;
 import com.metabroadcast.atlas.glycerin.GlycerinQuery;
 import com.metabroadcast.atlas.glycerin.GlycerinResponse;
 import com.metabroadcast.atlas.glycerin.model.Nitro;
+import com.google.api.client.http.GenericUrl;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -62,4 +63,12 @@ public abstract class BaseApiQuery<TRANSFORMED> extends GlycerinQuery<Nitro, TRA
         return new GlycerinResponse<TRANSFORMED>(Lists.transform(results, toTransformed));
     }
 
+    @Override
+    public String toString() {
+        GenericUrl url = new GenericUrl();
+        url.setRawPath(resourcePath());
+        url.putAll(params);
+        return url.buildRelativeUrl();
+    }
+    
 }
