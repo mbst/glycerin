@@ -2,7 +2,9 @@ package com.metabroadcast.atlas.glycerin;
 
 import java.io.IOException;
 
+import com.google.common.base.Optional;
 import com.google.common.net.HostSpecifier;
+import com.google.common.util.concurrent.RateLimiter;
 import com.metabroadcast.atlas.glycerin.model.Availability;
 import com.metabroadcast.atlas.glycerin.model.Broadcast;
 import com.metabroadcast.atlas.glycerin.model.Programme;
@@ -28,6 +30,7 @@ public class XmlGlycerin implements Glycerin {
         private final String apiKey;
         
         private HostSpecifier host = HostSpecifier.fromValid(DEFAULT_HOST);
+        private Optional<RateLimiter> limiter = Optional.absent();
 
         public Builder(String apiKey) {
             this.apiKey = apiKey;
@@ -38,16 +41,21 @@ public class XmlGlycerin implements Glycerin {
             return this;
         }
         
+        public Builder withLimiter(RateLimiter limiter) {
+            this.limiter = Optional.of(limiter);
+            return this;
+        }
+        
         public XmlGlycerin build() {
-            return new XmlGlycerin(host, apiKey);
+            return new XmlGlycerin(host, apiKey, limiter);
         }
         
     }
     
     private final GlycerinHttpClient client;
 
-    public XmlGlycerin(HostSpecifier host, String apiKey) {
-        this.client = new GlycerinHttpClient(host, apiKey);
+    public XmlGlycerin(HostSpecifier host, String apiKey, Optional<RateLimiter> limiter) {
+        this.client = new GlycerinHttpClient(host, apiKey, limiter);
     }
 
     private <T> GlycerinResponse<T> executeQuery(GlycerinQuery<?, T> query) throws GlycerinException {
