@@ -14,14 +14,12 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.apache.ApacheHttpTransport;
+import com.google.api.client.util.BackOff;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.common.net.HostSpecifier;
 
 class GlycerinHttpClient {
 
-    private static final ExponentialBackOff BACK_OFF = new ExponentialBackOff.Builder()
-        .setInitialIntervalMillis(500)
-        .build();
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     
@@ -35,11 +33,19 @@ class GlycerinHttpClient {
         this.apiKey = checkNotNull(apiKey);
         this.requestFactory = new ApacheHttpTransport()
             .createRequestFactory(new HttpRequestInitializer() {
+                
+                private final ExponentialBackOff.Builder BACK_OFF = new ExponentialBackOff.Builder()
+                    .setInitialIntervalMillis(500);
+                
                 @Override
                 public void initialize(HttpRequest request) {
-                    request.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(BACK_OFF));
-                    request.setIOExceptionHandler(new HttpBackOffIOExceptionHandler(BACK_OFF));
+                    request.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(backOff()));
+                    request.setIOExceptionHandler(new HttpBackOffIOExceptionHandler(backOff()));
                     request.setParser(new JaxbObjectParser(new NitroJaxbContext().getContext()));
+                }
+
+                private BackOff backOff() {
+                    return BACK_OFF.build();
                 }
             });
     }
