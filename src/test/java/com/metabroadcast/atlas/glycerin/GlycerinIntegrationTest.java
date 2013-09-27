@@ -7,7 +7,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import com.google.api.client.repackaged.com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.net.HostSpecifier;
 import com.metabroadcast.atlas.glycerin.model.Programme;
@@ -27,10 +26,45 @@ public class GlycerinIntegrationTest {
     
     @Test(groups = "integration")
     public void testGetsAProgramme() throws GlycerinException {
-        GlycerinResponse<Programme> response = glycerin.execute(ProgrammesQuery.builder().withPid("b006m86d").build());
+        ProgrammesQuery query = ProgrammesQuery.builder()
+                .withPid("b006m86d").build();
+        GlycerinResponse<Programme> response = glycerin.execute(query);
         
         Programme eastEnders = Iterables.getOnlyElement(response.getResults());
         assertTrue(eastEnders.isBrand());
+    }
+
+    @Test(groups = "integration")
+    public void testHasNextReturnsFalseWhenNoNext() throws GlycerinException {
+        ProgrammesQuery query = ProgrammesQuery.builder()
+                .withPid("b006m86d").build();
+        GlycerinResponse<Programme> response = glycerin.execute(query);
+        
+        assertFalse(response.hasNext());
+    }
+
+    @Test(groups = "integration")
+    public void testHasNextReturnsTrueWhenNextPageAvailable() throws GlycerinException {
+        ProgrammesQuery query = ProgrammesQuery.builder()
+                .withDescendantsOf("b006m86d")
+                .withPageSize(1)
+                .build();
+        GlycerinResponse<Programme> response = glycerin.execute(query);
+        
+        assertTrue(response.hasNext());
+    }
+
+    @Test(groups = "integration")
+    public void testGetNextPage() throws GlycerinException {
+        ProgrammesQuery query = ProgrammesQuery.builder()
+                .withDescendantsOf("b006m86d")
+                .withPageSize(1)
+                .build();
+        GlycerinResponse<Programme> response = glycerin.execute(query);
+        
+        response = response.getNext();
+        
+        assertFalse(response.getResults().isEmpty());
     }
     
 }

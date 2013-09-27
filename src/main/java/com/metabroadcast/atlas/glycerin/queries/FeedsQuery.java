@@ -1,12 +1,12 @@
 package com.metabroadcast.atlas.glycerin.queries;
 
+import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.metabroadcast.atlas.glycerin.GlycerinQuery;
-import com.metabroadcast.atlas.glycerin.GlycerinResponse;
 import com.metabroadcast.atlas.glycerin.model.Feed;
 import com.metabroadcast.atlas.glycerin.model.Feeds;
-import com.google.common.collect.ImmutableMap;
 
 
 public class FeedsQuery extends GlycerinQuery<Feeds, Feed> {
@@ -27,7 +27,13 @@ public class FeedsQuery extends GlycerinQuery<Feeds, Feed> {
     }
 
     @Override
-    protected GlycerinResponse<Feed> toResponse(Feeds raw) {
-        return new GlycerinResponse<Feed>(raw.getFeed());
+    protected List<Feed> transform(Feeds raw) {
+        return raw.getFeed();
     }
+    
+    @Override
+    protected GlycerinQuery<Feeds, Feed> responseNext(Feeds raw) {
+        return null;
+    }
+    
 }

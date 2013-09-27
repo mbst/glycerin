@@ -1,10 +1,5 @@
 package com.metabroadcast.atlas.glycerin;
 
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.google.api.client.http.HttpResponseException;
 import com.google.common.base.Optional;
 import com.google.common.net.HostSpecifier;
 import com.google.common.util.concurrent.RateLimiter;
@@ -19,11 +14,7 @@ import com.metabroadcast.atlas.glycerin.queries.ProgrammesQuery;
 import com.metabroadcast.atlas.glycerin.queries.ServicesQuery;
 import com.metabroadcast.atlas.glycerin.queries.VersionsQuery;
 
-
 public class XmlGlycerin implements Glycerin {
-
-    private static final String DEVELOPER_OVER_RATE_MSG = "Developer Over Rate";
-    private static final String DEVELOPER_INACTIVE_MSG = "Developer Inactive";
     
     private static final String DEFAULT_HOST = "d.bbc.co.uk";
     
@@ -65,29 +56,7 @@ public class XmlGlycerin implements Glycerin {
     }
 
     private <T> GlycerinResponse<T> executeQuery(GlycerinQuery<?, T> query) throws GlycerinException {
-        try {
-            return client.get(query);
-        } catch (HttpResponseException hre) {
-            throw asGlycerinExcetpion(query.toString(), hre);
-        } catch (IOException e) {
-            throw new GlycerinException(query.toString(), e);
-        }
-    }
-
-    private GlycerinException asGlycerinExcetpion(String url, HttpResponseException hre) {
-        String content = hre.getContent();
-        Pattern responsePattern = Pattern.compile("<h1>([^<]+)</h1>");
-        Matcher matcher = responsePattern.matcher(content);
-        if (matcher.matches()) {
-            String msg = matcher.group(1);
-            if (msg.equals(DEVELOPER_INACTIVE_MSG)) {
-                return new GlycerinUnauthorizedException();
-            }
-            if (msg.equals(DEVELOPER_OVER_RATE_MSG)) {
-                return new GlycerinOverRateException();
-            }
-        }
-        return new GlycerinException(url, hre);
+        return client.get(query);
     }
 
     @Override

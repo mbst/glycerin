@@ -1,5 +1,6 @@
 package com.metabroadcast.atlas.glycerin;
 
+import java.util.List;
 import java.util.Map;
 
 public abstract class GlycerinQuery<RAW, TRANSFORMED> {
@@ -10,6 +11,8 @@ public abstract class GlycerinQuery<RAW, TRANSFORMED> {
     
     protected abstract Class<RAW> type();
     
-    protected abstract GlycerinResponse<TRANSFORMED> toResponse(RAW raw);
+    protected abstract List<TRANSFORMED> transform(RAW raw);
+
+    protected abstract GlycerinQuery<RAW, TRANSFORMED> responseNext(RAW raw);
     
 }

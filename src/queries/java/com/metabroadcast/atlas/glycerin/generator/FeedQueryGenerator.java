@@ -85,11 +85,16 @@ public class FeedQueryGenerator {
             
             addResourcePath(cls, feed);
             addResultTypeMethod(model, cls, transformedType);
-            addContstructor(cls);
+            addConstructor(cls);
             JDefinedClass bldrCls = addBuilderCls(feed, cls);
             
             cls.method(JMod.PUBLIC|JMod.STATIC|JMod.FINAL, bldrCls, "builder")
                 .body()._return(JExpr._new(bldrCls));
+            
+            JMethod cpyMthd = cls.method(JMod.PROTECTED|JMod.FINAL, cls, "copy");
+            JVar cpyParam = cpyMthd.param(immutableMap.narrow(String.class, Object.class), "params");
+            cpyMthd.body()._return(JExpr._new(cls).arg(cpyParam));
+            
             
         } catch (Exception e) { 
             throw new IllegalStateException(e);
@@ -155,11 +160,12 @@ public class FeedQueryGenerator {
         return valueEnum;
     }
 
-    private void addContstructor(JDefinedClass cls) {
+    private JMethod addConstructor(JDefinedClass cls) {
         JMethod constructor = cls.constructor(JMod.PRIVATE);
         constructor.param(stringObjectMap(model), "params");
         constructor.body().invoke("super")
             .arg(constructor.listParams()[0]);
+        return constructor;
     }
 
     private JClass getTransformedType(Feed feed) {

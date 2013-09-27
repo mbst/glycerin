@@ -2,17 +2,12 @@ package com.metabroadcast.atlas.glycerin;
 
 import com.google.common.collect.ImmutableList;
 
+public interface GlycerinResponse<T> {
 
-public class GlycerinResponse<T> {
+    ImmutableList<T> getResults();
 
-    private final ImmutableList<T> results;
+    boolean hasNext();
 
-    public GlycerinResponse(Iterable<T> results) {
-        this.results = ImmutableList.copyOf(results);
-    }
+    GlycerinResponse<T> getNext() throws GlycerinException;
 
-    public ImmutableList<T> getResults() {
-        return results;
-    }
-    
 }
