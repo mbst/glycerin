@@ -1,6 +1,7 @@
 package com.metabroadcast.atlas.glycerin.queries;
 
 import java.lang.reflect.Method;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -8,8 +9,8 @@ import com.google.api.client.http.GenericUrl;
 import com.google.api.client.repackaged.com.google.common.base.Strings;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
-import com.google.common.base.Splitter.MapSplitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.metabroadcast.atlas.glycerin.GlycerinQuery;
@@ -59,8 +60,9 @@ public abstract class BaseApiQuery<TRANSFORMED> extends GlycerinQuery<Nitro, TRA
                 return resultsType().cast(res);
             }
         };
-    private static final MapSplitter paramSplitter = Splitter.on("&")
-            .withKeyValueSeparator("=");
+        
+    private static final Splitter paramSplitter = Splitter.on("&");
+    private static final Splitter kvSplitter = Splitter.on("=");
     
     @Override
     protected final List<TRANSFORMED> transform(Nitro raw) {
@@ -77,7 +79,13 @@ public abstract class BaseApiQuery<TRANSFORMED> extends GlycerinQuery<Nitro, TRA
     private ImmutableMap<String, Object> toParameters(String nextHref) {
         int paramStart = nextHref.indexOf("?")+1;
         String params = nextHref.substring(paramStart);
-        return ImmutableMap.<String, Object>copyOf(paramSplitter.split(params));
+        ImmutableListMultimap.Builder<String, String> paramMapping
+            = ImmutableListMultimap.builder();
+        for (String keyValue : paramSplitter.split(params)) {
+            Iterator<String> kvIter = kvSplitter.split(keyValue).iterator();
+            paramMapping.put(kvIter.next(), kvIter.next());
+        }
+        return ImmutableMap.<String, Object>copyOf(paramMapping.build().asMap());
     }
 
     protected abstract BaseApiQuery<TRANSFORMED> copy(ImmutableMap<String, Object> params);

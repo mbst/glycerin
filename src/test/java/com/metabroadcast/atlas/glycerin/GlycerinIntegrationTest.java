@@ -66,5 +66,18 @@ public class GlycerinIntegrationTest {
         
         assertFalse(response.getResults().isEmpty());
     }
+
+    @Test(groups = "integration")
+    public void testGetNextPageWhenParameterIsRepeated() throws GlycerinException {
+        ProgrammesQuery query = ProgrammesQuery.builder()
+                .withDescendantsOf("b006m86d", "b007t575")
+                .withPageSize(1)
+                .build();
+        GlycerinResponse<Programme> response = glycerin.execute(query);
+        
+        response = response.getNext();
+        
+        assertFalse(response.getResults().isEmpty());
+    }
     
 }
