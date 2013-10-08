@@ -29,6 +29,7 @@ class GlycerinHttpClient {
 
     private static final String DEVELOPER_OVER_RATE_MSG = "Developer Over Rate";
     private static final String DEVELOPER_INACTIVE_MSG = "Developer Inactive";
+    private static final NitroJaxbContext NITRO_JAXB_CONTEXT = new NitroJaxbContext();
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     
@@ -56,7 +57,7 @@ class GlycerinHttpClient {
                 public void initialize(HttpRequest request) {
                     request.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(backOff()));
                     request.setIOExceptionHandler(new HttpBackOffIOExceptionHandler(backOff()));
-                    request.setParser(new JaxbObjectParser(new NitroJaxbContext().getContext()));
+                    request.setParser(new JaxbObjectParser(NITRO_JAXB_CONTEXT.getContext()));
                     request.setInterceptor(new HttpExecuteInterceptor() {
                         @Override
                         public void intercept(HttpRequest request) throws IOException {

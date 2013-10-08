@@ -4,7 +4,7 @@ apply plugin: 'maven'
 
 sourceCompatibility = 1.6
 group 'com.metabroadcast.atlas.glycerin'
-version = '0.1.4-SNAPSHOT'
+version = '0.1.6'
 
 configurations {
     xjc
@@ -176,7 +176,7 @@ uploadArchives {
     def creds = getCredentials()
     repositories.mavenDeployer {
         configuration = configurations.archives
-        repository(url: "dav:http://mvn.metabroadcast.com:80/public-snapshots-local") {
+        repository(url: "dav:http://mvn.metabroadcast.com:80/public-releases-local") {
             authentication(userName: creds["username"], password: creds["password"])
         }
     }
