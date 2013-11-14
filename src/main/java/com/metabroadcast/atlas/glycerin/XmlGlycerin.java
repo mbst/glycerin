@@ -28,6 +28,7 @@ public class XmlGlycerin implements Glycerin {
         
         private HostSpecifier host = HostSpecifier.fromValid(DEFAULT_HOST);
         private Optional<RateLimiter> limiter = Optional.absent();
+        private Optional<String> root = Optional.absent();
 
         public Builder(String apiKey) {
             this.apiKey = apiKey;
@@ -43,16 +44,21 @@ public class XmlGlycerin implements Glycerin {
             return this;
         }
         
+        public Builder withRootResource(String root) {
+            this.root = Optional.of(root);
+            return this;
+        }
+        
         public XmlGlycerin build() {
-            return new XmlGlycerin(host, apiKey, limiter);
+            return new XmlGlycerin(host, apiKey, limiter, root);
         }
         
     }
     
     private final GlycerinHttpClient client;
 
-    public XmlGlycerin(HostSpecifier host, String apiKey, Optional<RateLimiter> limiter) {
-        this.client = new GlycerinHttpClient(host, apiKey, limiter);
+    public XmlGlycerin(HostSpecifier host, String apiKey, Optional<RateLimiter> limiter, Optional<String> root) {
+        this.client = new GlycerinHttpClient(host, apiKey, limiter, root);
     }
 
     private <T> GlycerinResponse<T> executeQuery(GlycerinQuery<?, T> query) throws GlycerinException {

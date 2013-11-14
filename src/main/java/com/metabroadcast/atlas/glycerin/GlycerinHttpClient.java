@@ -36,13 +36,15 @@ class GlycerinHttpClient {
     private final HostSpecifier host;
     private final String apiKey;
     private final Optional<RateLimiter> limiter;
+    private final Optional<String> root;
     
     private final HttpRequestFactory requestFactory;
 
-    public GlycerinHttpClient(HostSpecifier host, String apiKey, Optional<RateLimiter> limiter) {
+    public GlycerinHttpClient(HostSpecifier host, String apiKey, Optional<RateLimiter> limiter, Optional<String> root) {
         this.host = checkNotNull(host);
         this.apiKey = checkNotNull(apiKey);
         this.limiter = checkNotNull(limiter);
+        this.root = checkNotNull(root);
         this.requestFactory = initRequestFactory();
     }
 
@@ -115,7 +117,7 @@ class GlycerinHttpClient {
         url.setScheme("http");
         url.setHost(host.toString());
         url.set("api_key", apiKey);
-        url.setRawPath(q.resourcePath());
+        url.setRawPath(root.or("") + q.resourcePath());
         url.putAll(q.queryParameters());
         return url;
     }
