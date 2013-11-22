@@ -1,105 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<n:feeds xmlns:n="http://www.bbc.co.uk/nitro/">
-  <n:feed name="Programmes" rel="feed" href="/nitro/api/programmes" title="Fetch metadata about Programmes (brands, series, episodes, clips). By applying different filter restrictions this feed can be used in many ways, for example to retrieve all series belonging to a brand, all the episodes and/or clips for a specific series, or any TLEO objects for a masterbrand. Other filters permit restricting to specific formats and/or genres, and you can request specific versions (for example Signed or Audio-Described). Parameters may be combined in any way suitable for your application.">
+<n:feeds xsi:schemaLocation="http://www.bbc.co.uk/nitro/ https://api.bbc.co.uk/nitro/api/schema" xmlns:n="http://www.bbc.co.uk/nitro/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <n:feed name="Programmes" rel="feed" href="/nitro/api/programmes" title="Start here for programmes metadata: Brands, Series, Episodes and Clips">
     <n:filters>
-      <n:filter name="page" type="integer" title="which page of results to return" min_value="1"/>
-      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300"/>
+      <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1"/>
+      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10"/>
+      <n:filter name="q" type="string" title="filter for subset of programmes matching supplied keyword/phrase (boolean operators permitted)"/>
       <n:filter name="audio_described" type="string" title="filter for subset of programmes that are audio-described">
-	<n:option value="true" href="/nitro/api/programmes?audio_described=true"/>
-	<n:option value="false" href="/nitro/api/programmes?audio_described=false"/>
+	<n:option value="true" title="filter for programmes that are audio-described" href="/nitro/api/programmes?audio_described=true"/>
+	<n:option value="false" title="filter for programmes that are not audio-described" href="/nitro/api/programmes?audio_described=false"/>
       </n:filter>
       <n:filter name="availability" type="string" title="filter for subset of programmes that have availability">
-	<n:option value="available" href="/nitro/api/programmes?availability=available"/>
+	<n:option value="available" title="filter for programmes that are available" href="/nitro/api/programmes?availability=available"/>
       </n:filter>
       <n:filter name="availability_from" type="datetime" title="filter for subset of programmes that are available after or at the specified datetime"/>
       <n:filter name="availability_to" type="datetime" title="filter for subset of programmes that are available before the specified datetime"/>
       <n:filter name="availability_entity_type" type="string" title="additional filter when availability=available">
-	<n:option value="episode" href="/nitro/api/programmes?availability_entity_type=episode"/>
-	<n:option value="clip" href="/nitro/api/programmes?availability_entity_type=clip"/>
+	<n:option value="episode" title="filter for programmes with available episodes" href="/nitro/api/programmes?availability_entity_type=episode"/>
+	<n:option value="clip" title="filter for programmes with available clips" href="/nitro/api/programmes?availability_entity_type=clip"/>
       </n:filter>
       <n:filter name="children_of" type="PID" title="filter for subset of programmes that have PID as immediate parent" multiple_values="true"/>
       <n:filter name="descendants_of" type="PID" title="filter for subset of programmes that have PID as ancestor" multiple_values="true"/>
       <n:filter name="duration" type="string" title="filter for subset of programmes that have given duration">
-	<n:option value="short" href="/nitro/api/programmes?duration=short"/>
-	<n:option value="medium" href="/nitro/api/programmes?duration=medium"/>
-	<n:option value="long" href="/nitro/api/programmes?duration=long"/>
+	<n:option value="short" title="filter for programmes that have short duration (&lt; 5m)" href="/nitro/api/programmes?duration=short"/>
+	<n:option value="medium" title="filter for programmes that have medium duration (5m - 30m)" href="/nitro/api/programmes?duration=medium"/>
+	<n:option value="long" title="filter for programmes that have long duration (&gt; 30m)" href="/nitro/api/programmes?duration=long"/>
       </n:filter>
       <n:filter name="entity_type" type="string" title="filter for subset of programmes that have given entity type" multiple_values="true">
-	<n:option value="brand" href="/nitro/api/programmes?entity_type=brand"/>
-	<n:option value="series" href="/nitro/api/programmes?entity_type=series"/>
-	<n:option value="episode" href="/nitro/api/programmes?entity_type=episode"/>
-	<n:option value="clip" href="/nitro/api/programmes?entity_type=clip"/>
+	<n:option value="brand" title="filter for programmes that are brands" href="/nitro/api/programmes?entity_type=brand"/>
+	<n:option value="series" title="filter for programmes that are series" href="/nitro/api/programmes?entity_type=series"/>
+	<n:option value="episode" title="filter for programmes that are episodes" href="/nitro/api/programmes?entity_type=episode"/>
+	<n:option value="clip" title="filter for programmes that are clips" href="/nitro/api/programmes?entity_type=clip"/>
       </n:filter>
       <n:filter name="format" type="string" title="filter for subset of programmes with format" multiple_values="true"/>
       <n:filter name="genre" type="string" title="filter for subset of programmes with genre" multiple_values="true"/>
-      <n:filter name="initial_letter" type="character" title="filter for subset of programmes with title beginning with initial letter" multiple_values="true"/>
-      <n:filter name="masterbrand" type="string" title="deprecated, please use 'master_brand' filter instead" multiple_values="true" deprecated="true" deprecated-since="2013-05-22" guaranteed-until="2013-07-31"/>
-      <n:filter name="master_brand" type="string" title="filter for subset of programmes with masterbrand" multiple_values="true"/>
+      <n:filter name="initial_letter_strict" type="character" title="filter for subset of programmes with title beginning with initial letter" multiple_values="true"/>
+      <n:filter name="initial_letter" type="character" title="filter for subset of programmes with title beginning with initial letter librarian style (ignoring leading 'The', 'A', etc)"/>
+      <n:filter name="people" type="PID" title="filter for subset of programmes with contributions by given people PID"/>
+      <n:filter name="master_brand" type="string" title="filter for subset of programmes with master_brand" multiple_values="true"/>
       <n:filter name="media_set" type="string" title="filter for subset of programmes with media set"/>
       <n:filter name="media_type" type="string" title="filter for subset of programmes with media type">
-	<n:option value="audio" href="/nitro/api/programmes?media_type=audio"/>
-	<n:option value="audio_video" href="/nitro/api/programmes?media_type=audio_video"/>
+	<n:option value="audio" title="filter for programmes that are audio only" href="/nitro/api/programmes?media_type=audio"/>
+	<n:option value="audio_video" title="filter for programmes that are video only" href="/nitro/api/programmes?media_type=audio_video"/>
       </n:filter>
       <n:filter name="pid" type="PID" title="filter for subset of programmes having given PID" multiple_values="true"/>
       <n:filter name="signed" type="string" title="filter for subset of programmes that are signed">
-	<n:option value="exclusive" href="/nitro/api/programmes?signed=exclusive"/>
-	<n:option value="inclusive" href="/nitro/api/programmes?signed=inclusive"/>
-	<n:option value="exclude" href="/nitro/api/programmes?signed=exclude"/>
+	<n:option value="exclusive" title="filter for programmes that are signed" href="/nitro/api/programmes?signed=exclusive"/>
+	<n:option value="inclusive" title="filter for programmes regardless of signedness" href="/nitro/api/programmes?signed=inclusive"/>
+	<n:option value="exclude" title="filter for programmes that are not signed" href="/nitro/api/programmes?signed=exclude"/>
       </n:filter>
       <n:filter name="tleo" type="boolean" title="filter for subset of programmes that are TLEOs">
-	<n:option value="true" href="/nitro/api/programmes?tleo=true"/>
-	<n:option value="false" href="/nitro/api/programmes?tleo=false"/>
+	<n:option value="true" title="filter for programmes that are TLEOs" href="/nitro/api/programmes?tleo=true"/>
+	<n:option value="false" title="filter for programmes that are not TLEOs" href="/nitro/api/programmes?tleo=false"/>
       </n:filter>
+      <n:filter name="version" type="PID" title="filter for subset of programmes with given PID as one of their versions" multiple_values="true"/>
+      <n:filter name="item" type="PID" title="filter for subset of programmes with linked to versions which have the given item pids" multiple_values="true"/>
     </n:filters>
     <n:sorts>
-      <n:sort name="most_popular" is_default="false">
-	<n:sort_direction name="sort_direction" value="ascending" is_default="false" href="/nitro/api/programmes?sort=most_popular&amp;sort_direction=ascending"/>
-	<n:sort_direction name="sort_direction" value="descending" is_default="true" href="/nitro/api/programmes?sort=most_popular&amp;sort_direction=descending"/>
-      </n:sort>
-      <n:sort name="pid" is_default="true">
+      <n:sort name="pid" is_default="true" title="sort alphabetically by PID, descending">
 	<n:sort_direction name="sort_direction" value="ascending" is_default="false" href="/nitro/api/programmes?sort=pid&amp;sort_direction=ascending"/>
 	<n:sort_direction name="sort_direction" value="descending" is_default="true" href="/nitro/api/programmes?sort=pid&amp;sort_direction=descending"/>
       </n:sort>
-      <n:sort name="position" is_default="false">
-	<n:sort_direction name="sort_direction" value="ascending" is_default="true" href="/nitro/api/programmes?sort=position&amp;sort_direction=ascending"/>
-	<n:sort_direction name="sort_direction" value="descending" is_default="false" href="/nitro/api/programmes?sort=position&amp;sort_direction=descending"/>
-      </n:sort>
-      <n:sort name="release_date" is_default="false">
-	<n:sort_direction name="sort_direction" value="ascending" is_default="false" href="/nitro/api/programmes?sort=release_date&amp;sort_direction=ascending"/>
-	<n:sort_direction name="sort_direction" value="descending" is_default="true" href="/nitro/api/programmes?sort=release_date&amp;sort_direction=descending"/>
-      </n:sort>
-      <n:sort name="scheduled_start" is_default="false">
+      <n:sort name="scheduled_start" is_default="false" title="sort chronologically by scheduled start time/date, ascending">
 	<n:sort_direction name="sort_direction" value="ascending" is_default="true" href="/nitro/api/programmes?sort=scheduled_start&amp;sort_direction=ascending"/>
 	<n:sort_direction name="sort_direction" value="descending" is_default="false" href="/nitro/api/programmes?sort=scheduled_start&amp;sort_direction=descending"/>
       </n:sort>
-      <n:sort name="strict_title" is_default="false">
-	<n:sort_direction name="sort_direction" value="ascending" is_default="true" href="/nitro/api/programmes?sort=strict_title&amp;sort_direction=ascending"/>
-	<n:sort_direction name="sort_direction" value="descending" is_default="false" href="/nitro/api/programmes?sort=strict_title&amp;sort_direction=descending"/>
+      <n:sort name="most_popular" is_default="false" title="sort numerically by popularity (most popular first)">
+	<n:sort_direction name="sort_direction" value="ascending" is_default="false" href="/nitro/api/programmes?sort=most_popular&amp;sort_direction=ascending"/>
+	<n:sort_direction name="sort_direction" value="descending" is_default="true" href="/nitro/api/programmes?sort=most_popular&amp;sort_direction=descending"/>
       </n:sort>
-      <n:sort name="title" is_default="false">
-	<n:sort_direction name="sort_direction" value="ascending" is_default="true" href="/nitro/api/programmes?sort=title&amp;sort_direction=ascending"/>
-	<n:sort_direction name="sort_direction" value="descending" is_default="false" href="/nitro/api/programmes?sort=title&amp;sort_direction=descending"/>
-      </n:sort>
-      <n:sort name="views" is_default="false">
+      <n:sort name="views" is_default="false" title="sort numerically by number of views (most popular first - faster most_popular)">
 	<n:sort_direction name="sort_direction" value="ascending" is_default="false" href="/nitro/api/programmes?sort=views&amp;sort_direction=ascending"/>
 	<n:sort_direction name="sort_direction" value="descending" is_default="true" href="/nitro/api/programmes?sort=views&amp;sort_direction=descending"/>
       </n:sort>
+      <n:sort name="position" is_default="false" title="sort numerically by position, ascending">
+	<n:sort_direction name="sort_direction" value="ascending" is_default="true" href="/nitro/api/programmes?sort=position&amp;sort_direction=ascending"/>
+	<n:sort_direction name="sort_direction" value="descending" is_default="false" href="/nitro/api/programmes?sort=position&amp;sort_direction=descending"/>
+      </n:sort>
+      <n:sort name="title" is_default="false" title="sort by title librarian style (ignoring leading 'The', 'A', etc), ascending">
+	<n:sort_direction name="sort_direction" value="ascending" is_default="true" href="/nitro/api/programmes?sort=title&amp;sort_direction=ascending"/>
+	<n:sort_direction name="sort_direction" value="descending" is_default="false" href="/nitro/api/programmes?sort=title&amp;sort_direction=descending"/>
+      </n:sort>
+      <n:sort name="strict_title" is_default="false" title="sort alphabetically by title, ascending">
+	<n:sort_direction name="sort_direction" value="ascending" is_default="true" href="/nitro/api/programmes?sort=strict_title&amp;sort_direction=ascending"/>
+	<n:sort_direction name="sort_direction" value="descending" is_default="false" href="/nitro/api/programmes?sort=strict_title&amp;sort_direction=descending"/>
+      </n:sort>
+      <n:sort name="relevance" is_default="false" title="sort by relevance, ascending only">
+	<n:sort_direction name="sort_direction" value="ascending" is_default="true" href="/nitro/api/programmes?sort=relevance&amp;sort_direction=ascending"/>
+	<n:sort_direction name="sort_direction" value="descending" is_default="false" href="/nitro/api/programmes?sort=relevance&amp;sort_direction=descending"/>
+      </n:sort>
     </n:sorts>
     <n:mixins>
-      <n:mixin name="titles" href="/nitro/api/programmes?mixin=titles" title="mixin to return ancestor programme titles"/>
-      <n:mixin name="duration" href="/nitro/api/programmes?mixin=duration" title="mixin to return original version duration in programme concept entities"/>
+      <n:mixin name="ancestor_titles" title="mixin to return ancestor programme titles" href="/nitro/api/programmes?mixin=ancestor_titles"/>
+      <n:mixin name="duration" title="mixin to return original version duration in programme concept entities" href="/nitro/api/programmes?mixin=duration"/>
+      <n:mixin name="people" title="mixin to return information about contributors to a programme" href="/nitro/api/programmes?mixin=people"/>
+      <n:mixin name="related_links" title="mixin to return information about related links to a programme" href="/nitro/api/programmes?mixin=related_links"/>
+      <n:mixin name="titles" title="mixin to return ancestor programme titles" deprecated="true" deprecated_since="2013-11-14" replaced_by="ancestor_titles" href="/nitro/api/programmes?mixin=titles"/>
     </n:mixins>
   </n:feed>
-  <n:feed name="Broadcasts" rel="feed" href="/nitro/api/broadcasts" title="Fetch metadata about linear Broadcasts and Services, allowing the generation of Television and Radio schedules and other datasets for broadcast items.">
+  <n:feed name="Broadcasts" rel="feed" href="/nitro/api/broadcasts" title="Build schedules and find metadata for TV and radio broadcasts">
     <n:filters>
+      <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1"/>
+      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10"/>
       <n:filter name="end_from" type="datetime" title="filter for subset of broadcasts that end on or later than the specified datetime"/>
       <n:filter name="end_to" type="datetime" title="filter for subset of broadcasts that end on or earlier than the specified datetime"/>
       <n:filter name="format" type="string" title="filter for subset of broadcasts that are classified in the given format ID" multiple_values="true"/>
       <n:filter name="genre" type="string" title="filter for subset of broadcasts that are classified in the given genre ID" multiple_values="true"/>
       <n:filter name="id" type="string" title="filter for subset of broadcasts that have given identifier" multiple_values="true"/>
       <n:filter name="authority" type="string" title="filter for subset of broadcasts that have given authority" multiple_values="true"/>
-      <n:filter name="page" type="integer" title="which page of results to return" min_value="1"/>
-      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300"/>
+      <n:filter name="people" type="string" title="filter for subset of broadcasts that have given contributor"/>
       <n:filter name="pid" type="PID" title="filter for subset of broadcasts having given PID" multiple_values="true"/>
       <n:filter name="schedule_day" type="date" title="filter for subset of broadcasts that start on the specified day (BBC time)"/>
       <n:filter name="schedule_day_from" type="date" title="filter for subset of broadcasts that start on or after the specified day (BBC time)"/>
@@ -109,28 +117,30 @@
       <n:filter name="start_from" type="datetime" title="filter for subset of broadcasts that start on or later than the specified datetime"/>
       <n:filter name="start_to" type="datetime" title="filter for subset of broadcasts that start on or earlier than the specified datetime"/>
       <n:filter name="version" type="PID" title="filter for subset of broadcasts with given PID as their parent version" multiple_values="true"/>
+      <n:filter name="item" type="PID" title="filter for subset of broadcasts with the given item performed on it" multiple_values="true"/>
       <n:filter name="service_master_brand" type="string" title="filter for subset of broadcasts with given service master brand" multiple_values="true"/>
+      <n:filter name="q" type="string" title="filter for subset of broadcasts matching supplied keyword/phrase (boolean operators permitted)"/>
     </n:filters>
     <n:sorts>
-      <n:sort name="start_date" is_default="true">
+      <n:sort name="start_date" is_default="true" title="sort chronologically by scheduled start time/date, ascending">
 	<n:sort_direction name="sort_direction" value="ascending" is_default="true" href="/nitro/api/broadcasts?sort=start_date&amp;sort_direction=ascending"/>
 	<n:sort_direction name="sort_direction" value="descending" is_default="false" href="/nitro/api/broadcasts?sort=start_date&amp;sort_direction=descending"/>
       </n:sort>
     </n:sorts>
     <n:mixins>
-      <n:mixin name="titles" href="/nitro/api/broadcasts?mixin=titles" title="return ancestor programme titles"/>
+      <n:mixin name="titles" title="return ancestor programme titles" href="/nitro/api/broadcasts?mixin=titles"/>
     </n:mixins>
   </n:feed>
-  <n:feed name="Services" rel="feed" href="/nitro/api/services" title="Fetch metadata about Linear Services">
+  <n:feed name="Services" rel="feed" href="/nitro/api/services" title="Information about the linear services used for broadcast transmissions">
     <n:filters>
-      <n:filter name="page" type="integer" title="which page of results to return" min_value="1"/>
-      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300"/>
+      <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1"/>
+      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10"/>
       <n:filter name="sid" type="string" title="filter for specified linear service" multiple_values="true"/>
       <n:filter name="service_type" type="string" title="filter for specified type of linear services. one of: TV, Local Radio, National Radio, Regional Radio" multiple_values="true">
-	<n:option value="TV" href="/nitro/api/services?service_type=TV"/>
-	<n:option value="Local Radio" href="/nitro/api/services?service_type=Local+Radio"/>
-	<n:option value="National Radio" href="/nitro/api/services?service_type=National+Radio"/>
-	<n:option value="Regional Radio" href="/nitro/api/services?service_type=Regional+Radio"/>
+	<n:option value="TV" title="Return only TV services" href="/nitro/api/services?service_type=TV"/>
+	<n:option value="Local Radio" title="Return only Local Radio services" href="/nitro/api/services?service_type=Local+Radio"/>
+	<n:option value="National Radio" title="Return only National Radio services" href="/nitro/api/services?service_type=National+Radio"/>
+	<n:option value="Regional Radio" title="Return only Regional Radio services" href="/nitro/api/services?service_type=Regional+Radio"/>
       </n:filter>
       <n:filter name="start_from" type="datetime" title="Return services that start on or later than the specified datetime"/>
       <n:filter name="start_to" type="datetime" title="Return services that start earlier than the specified datetime"/>
@@ -138,33 +148,89 @@
       <n:filter name="end_to" type="datetime" title="filter for subset of broadcasts that end on or earlier than the specified datetime"/>
     </n:filters>
   </n:feed>
-  <n:feed name="Versions" rel="feed" href="/nitro/api/versions" title="Fetch metadata about Versions">
+  <n:feed name="Versions" rel="feed" href="/nitro/api/versions" title="Metadata on editorial programme versions: original, signed, audio-described, etc">
     <n:filters>
-      <n:filter name="page" type="integer" title="which page of results to return" min_value="1"/>
-      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300"/>
+      <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1"/>
+      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10"/>
       <n:filter name="pid" type="PID" title="filter for subset of versions having given PID" multiple_values="true"/>
+      <n:filter name="programme" type="PID" title="filter for subset of versions having given programme PID" multiple_values="true"/>
+      <n:filter name="pid-version" type="PID" title="filter for subset of versions having given programme PID" multiple_values="true"/>
     </n:filters>
   </n:feed>
-  <n:feed name="People" rel="feed" href="/nitro/api/people" title="Fetch metadata about People (talent, cast, crew, etc)">
+  <n:feed name="People" rel="feed" href="/nitro/api/people" title="Find the people behind and in programmes: cast, crew, guests and more">
     <n:filters>
-      <n:filter name="page" type="integer" title="which page of results to return" min_value="1"/>
-      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300"/>
+      <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1"/>
+      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10"/>
       <n:filter name="pid" type="PID" title="filter for subset of people having given PID" multiple_values="true"/>
       <n:filter name="has_external_id" type="boolean" title="filter for people who have an external identifier">
-	<n:option value="true" href="/nitro/api/people?has_external_id=true"/>
-	<n:option value="false" href="/nitro/api/people?has_external_id=false"/>
+	<n:option value="true" title="filter for people who have an external identifier" href="/nitro/api/people?has_external_id=true"/>
+	<n:option value="false" title="filter for people who do not have an external identifier" href="/nitro/api/people?has_external_id=false"/>
       </n:filter>
       <n:filter name="id" type="ID" title="filter for subset of people having given ID" multiple_values="true"/>
       <n:filter name="authority" type="string" title="filter for subset of people that have an ID issued by the given authority"/>
       <n:filter name="id_type" type="string" title="filter for subset of people that have given an ID of the given type"/>
+      <n:filter name="programme" type="string" title="filter for subset of people that have contributed to the given programme pid"/>
+      <n:filter name="q" type="string" title="filter for subset of people matching supplied keyword/phrase (boolean operators permitted)"/>
     </n:filters>
   </n:feed>
-  <n:feed name="Availability" rel="feed" href="/nitro/api/availabilities" title="Fetch metadata about on-demand availability of Programmes, Versions, etc">
+  <n:feed name="Availability" rel="feed" href="/nitro/api/availabilities" title="Discover details of on-demand availability for programmes and their versions">
     <n:filters>
-      <n:filter name="page" type="integer" title="which page of results to return" min_value="1"/>
-      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300"/>
-      <n:filter name="media_set" type="string" title="filter for subset of availabilities with media set"/>
+      <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1"/>
+      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10"/>
+      <n:filter name="media_set" type="string" title="filter for subset of availabilities with media set" multiple_values="true"/>
       <n:filter name="descendants_of" type="PID" title="filter for subset of availabilities that have PID as ancestor" multiple_values="true"/>
+      <n:filter name="territory" type="string" title="filter for availabilities in given territory">
+	<n:option value="uk" title="filter for only UK availabilities" href="/nitro/api/availabilities?territory=uk"/>
+	<n:option value="nonuk" title="filter for only non-UK availabilities" href="/nitro/api/availabilities?territory=nonuk"/>
+	<n:option value="world" title="filter for global availabilities" href="/nitro/api/availabilities?territory=world"/>
+      </n:filter>
     </n:filters>
+  </n:feed>
+  <n:feed name="Items" rel="feed" href="/nitro/api/items" title="Look inside programmes to find segments: chapters, tracks and more">
+    <n:filters>
+      <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1"/>
+      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10"/>
+      <n:filter name="pid" type="PID" title="filter for subset of items matching one of the given PIDs" multiple_values="true"/>
+      <n:filter name="id" type="ID" title="filter for subset of items having given ID" multiple_values="true"/>
+      <n:filter name="authority" type="string" title="filter for subset of items that have an ID issued by the given authority"/>
+      <n:filter name="id_type" type="string" title="filter for subset of items that have given an ID of the given type"/>
+      <n:filter name="item_type" type="string" multiple_values="true" title="filter for specific type(s) of items">
+	<n:option value="chapter" title="filter for only chapter items" href="/nitro/api/items?item_type=chapter"/>
+	<n:option value="highlight" title="filter for only highlight items" href="/nitro/api/items?item_type=highlight"/>
+	<n:option value="music" title="filter for only music items" href="/nitro/api/items?item_type=music"/>
+	<n:option value="speech" title="filter for only speech items" href="/nitro/api/items?item_type=speech"/>
+	<n:option value="other" title="filter for only other items" href="/nitro/api/items?item_type=other"/>
+      </n:filter>
+      <n:filter name="q" type="string" title="filter for subset of items matching supplied keyword/phrase (boolean operators permitted)"/>
+      <n:filter name="programme" type="PID" title="filter for subset of items that are part of the given programme"/>
+    </n:filters>
+  </n:feed>
+  <n:feed name="Pips" rel="feed" href="/nitro/api/pips" title="Look inside pips entities">
+    <n:filters>
+      <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1"/>
+      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10"/>
+      <n:filter name="q" type="string" title="filter for subset of programmes matching supplied keyword/phrase (boolean operators permitted)"/>
+    </n:filters>
+  </n:feed>
+  <n:feed name="Schedules" rel="feed" href="/nitro/api/schedules" title="Build schedules and find metadata for TV and radio broadcasts and windows">
+    <n:filters>
+      <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1"/>
+      <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10"/>
+      <n:filter name="start_from" type="datetime" title="filter for subset of broadcasts and windows that start on or later than the specified datetime"/>
+      <n:filter name="start_to" type="datetime" title="filter for subset of broadcasts and windows that start on or earlier than the specified datetime"/>
+      <n:filter name="end_from" type="datetime" title="filter for subset of broadcasts and windows that end on or later than the specified datetime"/>
+      <n:filter name="end_to" type="datetime" title="filter for subset of broadcasts and windows that end on or earlier than the specified datetime"/>
+      <n:filter name="schedule_day" type="date" title="filter for subset of broadcasts and windows that start on the specified day (BBC time)"/>
+      <n:filter name="schedule_day_from" type="date" title="filter for subset of broadcasts and windows that start on or after the specified day (BBC time)"/>
+      <n:filter name="schedule_day_to" type="date" title="filter for subset of broadcasts and windows that start on or before the specified day (BBC time)"/>
+      <n:filter name="descendants_of" type="PID" title="filter for subset of broadcasts and windows that are descendants of the given programme PID" multiple_values="true"/>
+      <n:filter name="pid" type="PID" title="filter for subset of broadcasts having given PID" multiple_values="true"/>
+    </n:filters>
+    <n:sorts>
+      <n:sort name="start_date" is_default="true" title="sort chronologically by scheduled start time/date, ascending">
+	<n:sort_direction name="sort_direction" value="ascending" is_default="true" href="/nitro/api/schedules?sort=start_date&amp;sort_direction=ascending"/>
+	<n:sort_direction name="sort_direction" value="descending" is_default="false" href="/nitro/api/schedules?sort=start_date&amp;sort_direction=descending"/>
+      </n:sort>
+    </n:sorts>
   </n:feed>
 </n:feeds>

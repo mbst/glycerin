@@ -196,7 +196,7 @@ public class FeedQueryGenerator {
     private void addWithersFor(Filter filter, JDefinedClass bldrCls, JVar paramBuilder) throws ClassNotFoundException, JClassAlreadyExistsException {
         JDefinedClass cls = (JDefinedClass) bldrCls.parentContainer();
         
-        JFieldVar field = cls.field(privateStaticFinal, String.class, filter.getName().toUpperCase());
+        JFieldVar field = cls.field(privateStaticFinal, String.class, sanitize(filter.getName().toUpperCase()));
         field.init(JExpr.lit(filter.getName()));
         
         JClass paramType = mapType(filter);
@@ -206,6 +206,10 @@ public class FeedQueryGenerator {
         } else {
             addWither(filter, bldrCls, paramBuilder, field, paramType);
         }
+    }
+
+    private String sanitize(String input) {
+        return input.replaceAll("-", "_");
     }
 
     private void addVarArgsWither(Filter filter, JMethod wither, JDefinedClass bldrCls, JClass paramType) throws JClassAlreadyExistsException {
@@ -274,11 +278,11 @@ public class FeedQueryGenerator {
     }
 
     private JVar addParam(Filter filter, JMethod method, JType paramType) {
-        return method.param(paramType, camel(filter.getName(), false));
+        return method.param(paramType, camel(sanitize(filter.getName()), false));
     }
 
     private JMethod createWitherMethod(Filter filter, JDefinedClass bldrCls) {
-        String filterMethodName = "with" + camel(filter.getName(), true); 
+        String filterMethodName = "with" + camel(sanitize(filter.getName()), true); 
         return bldrCls.method(JMod.PUBLIC, bldrCls, filterMethodName);
     }
     
