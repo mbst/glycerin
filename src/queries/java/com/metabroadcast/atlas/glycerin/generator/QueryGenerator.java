@@ -7,8 +7,8 @@ import javax.xml.bind.JAXBContext;
 
 import com.metabroadcast.atlas.glycerin.model.Feed;
 import com.metabroadcast.atlas.glycerin.model.Feeds;
-import com.sun.codemodel.internal.JCodeModel;
-import com.sun.codemodel.internal.JPackage;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JPackage;
 
 public class QueryGenerator {
 
