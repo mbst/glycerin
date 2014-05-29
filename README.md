@@ -11,7 +11,7 @@ Usage
        <dependency>
           <groupId>com.metabroadcast.atlas.glycerin</groupId>
           <artifactId>glycerin</artifactId>
-          <version>0.1.2</version>
+          <version>0.1.9</version>
       </dependency>
       ```
 You'll need the MetaBroadcast repository: `http://mvn.metabroadcast.com/all`
@@ -29,9 +29,9 @@ GlycerinResponse<Broadcast> broadcasts = glycerin.execute(BroadcastQuery.builder
 Compiling
 ---------
 
-Glycerin is built with [gradle](http://gradle.org Gradle). In the glycerin directory:
+Glycerin is built with [gradle](http://gradle.org "Gradle"). In the glycerin directory:
 
-* `gradle compile` will generate and compile glycerin.
+* `gradle compileJava` will generate and compile glycerin.
 * `gradle install` will install maven artifacts into a local mvn repo.
 
 Code is generated from:
