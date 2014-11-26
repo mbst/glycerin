@@ -98,7 +98,6 @@
                 <xs:element ref="items_for" minOccurs="0"/>
                 <xs:element ref="expected_child_count" minOccurs="0"/>
                 <xs:group ref="images_mixin" minOccurs="0"/>
-                <xs:element ref="is_embeddable" minOccurs="0"/>
                 <xs:element ref="related_links" minOccurs="0"/>
                 <xs:group ref="people_mixin" minOccurs="0"/>
                 <xs:group ref="contributions_mixin" minOccurs="0"/>
@@ -125,7 +124,6 @@
                 <xs:element ref="items_for" minOccurs="0"/>
                 <xs:element ref="expected_child_count" minOccurs="0"/>
                 <xs:group ref="images_mixin" minOccurs="0"/>
-                <xs:element ref="is_embeddable" minOccurs="0"/>
                 <xs:element ref="ancestors_titles" minOccurs="0"/>
                 <xs:element ref="ancestor_titles" minOccurs="0"/>
                 <xs:element ref="related_links" minOccurs="0"/>
@@ -159,7 +157,6 @@
                 <xs:element ref="ancestors" minOccurs="0"/>
                 <xs:element ref="items_for" minOccurs="0"/>
                 <xs:group ref="images_mixin" minOccurs="0"/>
-                <xs:element ref="is_embeddable" minOccurs="0"/>
                 <xs:element ref="ancestors_titles" minOccurs="0"/>
                 <xs:element ref="ancestor_titles" minOccurs="0"/>
                 <xs:group ref="original_version_duration" minOccurs="0"/>
@@ -191,7 +188,6 @@
                 <xs:element ref="ancestors" minOccurs="0"/>
                 <xs:element ref="items_for" minOccurs="0"/>
                 <xs:group ref="images_mixin" minOccurs="0"/>
-                <xs:element ref="is_embeddable" minOccurs="0"/>
                 <xs:element ref="ancestors_titles" minOccurs="0"/>
                 <xs:element ref="ancestor_titles" minOccurs="0"/>
                 <xs:group ref="original_version_duration" minOccurs="0"/>
@@ -889,7 +885,6 @@
     <xs:element name="is_critical" type="xs:boolean"/>
     <xs:element name="is_simulcast" type="xs:boolean"/>
     <xs:element name="competition_warning" type="xs:boolean"/>
-    <xs:element name="is_embeddable" type="xs:boolean"/>
     <xs:element name="ids">
         <xs:complexType>
             <xs:sequence>
