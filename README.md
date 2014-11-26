@@ -11,7 +11,7 @@ Usage
        <dependency>
           <groupId>com.metabroadcast.atlas.glycerin</groupId>
           <artifactId>glycerin</artifactId>
-          <version>0.1.10</version>
+          <version>0.1.11</version>
       </dependency>
       ```
 You'll need the MetaBroadcast repository: `http://mvn.metabroadcast.com/all`
