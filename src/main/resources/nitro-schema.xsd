@@ -483,7 +483,7 @@
     <xs:group name="people_mixin_contribution">
         <xs:sequence>
             <xs:element name="contribution">
-                <xs:complexType mixed="true">
+                <xs:complexType>
                     <xs:sequence>
                         <xs:group ref="people_mixin_contributor_name" minOccurs="0"/>
                     </xs:sequence>
@@ -524,7 +524,7 @@
     <xs:group name="contributions_mixin_contribution">
         <xs:sequence>
             <xs:element name="contribution">
-                <xs:complexType mixed="true">
+                <xs:complexType>
                     <xs:sequence>
                         <xs:element name="credit_role" minOccurs="0">
                             <xs:complexType>

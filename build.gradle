@@ -4,7 +4,7 @@ apply plugin: 'maven'
 
 sourceCompatibility = 1.6
 group 'com.metabroadcast.atlas.glycerin'
-version = '0.1.11'
+version = '0.1.12'
 
 configurations {
     xjc
