@@ -2,9 +2,14 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 
-sourceCompatibility = 1.6
+sourceCompatibility = 1.7
+
 group 'com.metabroadcast.atlas.glycerin'
 version = '0.1.12'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.8'
+}
 
 configurations {
     xjc
@@ -13,7 +18,10 @@ configurations {
 
 repositories {
     mavenCentral()
-    mavenRepo name: 'Metabroadcast', url: 'http://mvn.metabroadcast.com/all'
+    maven {
+        name 'Metabroadcast'
+        url 'http://mvn.metabroadcast.com/all'
+    }
 }
 
 dependencies {
@@ -31,7 +39,9 @@ dependencies {
     testCompile('org.mockito:mockito-core:1.9.5') { exclude group: 'org.hamcrest' }
     testCompile 'org.slf4j:slf4j-log4j12:1.7.5'
 
-    xjc 'com.sun.xml.bind:jaxb-xjc:2.2.4-1'
+    xjc 'com.sun.xml.bind:jaxb-core:2.2.11'
+    xjc 'com.sun.xml.bind:jaxb-xjc:2.2.11'
+    xjc 'com.sun.xml.bind:jaxb-impl:2.2.11'
 
     queriesCompile 'com.sun.codemodel:codemodel:2.6'
     queriesCompile 'org.slf4j:slf4j-log4j12:1.7.5'
