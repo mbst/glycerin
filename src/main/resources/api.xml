@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="/nitro/api/v1/nitro.xsl?uri=/nitro/api/"?><n:feeds xsi:schemaLocation="http://www.bbc.co.uk/nitro/ https://api.bbc.co.uk/nitro/api/schema" xmlns:n="http://www.bbc.co.uk/nitro/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="UTF-8"?><n:feeds xsi:schemaLocation="http://www.bbc.co.uk/nitro/ https://api.bbc.co.uk/nitro/api/schema" xmlns:n="http://www.bbc.co.uk/nitro/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <n:feed name="Programmes" rel="feed" href="/nitro/api/programmes" title="Start here for programmes metadata: Brands, Series, Episodes and Clips" release_status="supported">
         <n:filters>
             <n:filter name="audio_described" type="boolean" title="filter for subset of programmes that are audio-described" release_status="supported">
@@ -7,10 +7,9 @@
             </n:filter>
             <n:filter name="availability" type="string" title="filter for subset of programmes that have availability" multiple_values="true" release_status="supported">
                 <n:option value="available" title="filter for programmes that are available" release_status="supported" href="/nitro/api/programmes?availability=available"/>
-                <n:option value="pending" title="filter for programmes that are expected to become available imminently" release_status="beta" href="/nitro/api/programmes?availability=pending"/>
+                <n:option value="pending" title="filter for programmes that are expected to become available imminently" release_status="supported" href="/nitro/api/programmes?availability=pending"/>
             </n:filter>
-            <!-- The following field is commented out because the current code generator doesn't support multiple filters with the same name -->
-            <!--<n:filter name="availability" type="daytime_duration" title="filter for programmes that will become available within given duration" multiple_values="true" release_status="beta"/>-->
+            <n:filter name="availability" type="daytime_duration" title="filter for programmes that will become available within given duration" multiple_values="true" release_status="supported"/>
             <n:filter name="availability_entity_type" type="string" title="additional filter when availability=available" release_status="supported">
                 <n:option value="episode" title="filter for programmes with available episodes" href="/nitro/api/programmes?availability_entity_type=episode"/>
                 <n:option value="clip" title="filter for programmes with available clips" href="/nitro/api/programmes?availability_entity_type=clip"/>
@@ -47,19 +46,19 @@
             </n:filter>
             <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1" release_status="supported"/>
             <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10" release_status="supported"/>
-            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="beta" multiple_values="true" prefer="partner_pid"/>
-            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="beta" multiple_values="true" default="s0000001"/>
+            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="supported" multiple_values="true" prefer="partner_pid"/>
+            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="supported" multiple_values="true" default="s0000001"/>
             <n:filter name="people" type="PID" title="filter for subset of programmes with contributions by given people PID" release_status="supported"/>
             <n:filter name="pid" type="PID" title="filter for subset of programmes having given PID" multiple_values="true" release_status="supported"/>
-            <n:filter name="promoted_for" type="string" title="filter for subset of programmes which are promoted for given service" release_status="beta"/>
+            <n:filter name="promoted_for" type="string" title="filter for subset of programmes which are promoted for given service" release_status="supported"/>
             <n:filter name="q" type="string" title="filter for subset of programmes matching supplied keyword/phrase (boolean operators permitted)" release_status="supported"/>
             <n:filter name="signed" type="string" title="filter for subset of programmes that are signed" release_status="supported">
                 <n:option value="exclusive" title="filter for programmes that are signed" href="/nitro/api/programmes?signed=exclusive"/>
                 <n:option value="inclusive" title="filter for programmes regardless of signedness" href="/nitro/api/programmes?signed=inclusive"/>
                 <n:option value="exclude" title="filter for programmes that are not signed" href="/nitro/api/programmes?signed=exclude"/>
             </n:filter>
-            <n:filter name="tag_name" type="string" title="filter for subset of programmes with tag" release_status="beta"/>
-            <n:filter name="tag_scheme" type="string" title="filter for subset of programmes with a tag" release_status="beta"/>
+            <n:filter name="tag_name" type="string" title="filter for subset of programmes with tag" release_status="supported"/>
+            <n:filter name="tag_scheme" type="string" title="filter for subset of programmes with a tag" release_status="supported"/>
             <n:filter name="tleo" type="boolean" title="filter for subset of programmes that are TLEOs" release_status="supported">
                 <n:option value="true" title="filter for programmes that are TLEOs" href="/nitro/api/programmes?tleo=true"/>
                 <n:option value="false" title="filter for programmes that are not TLEOs" href="/nitro/api/programmes?tleo=false"/>
@@ -67,7 +66,7 @@
             <n:filter name="version" type="PID" title="filter for subset of programmes with given PID as one of their versions" multiple_values="true" release_status="supported"/>
         </n:filters>
         <n:sorts>
-            <n:sort name="group_position" is_default="false" title="sort numerically by position in group, ascending" release_status="beta">
+            <n:sort name="group_position" is_default="false" title="sort numerically by position in group, ascending" release_status="supported">
                 <n:sort_direction name="sort_direction" value="ascending" is_default="true" href="/nitro/api/programmes?sort=group_position&amp;sort_direction=ascending"/>
             </n:sort>
             <n:sort name="most_popular" is_default="false" title="sort numerically by popularity (most popular first)" release_status="deprecated" deprecated="true" deprecated_since="2013-11-11" replaced_by="views">
@@ -82,7 +81,7 @@
                 <n:sort_direction name="sort_direction" value="ascending" is_default="true" href="/nitro/api/programmes?sort=position&amp;sort_direction=ascending"/>
                 <n:sort_direction name="sort_direction" value="descending" is_default="false" href="/nitro/api/programmes?sort=position&amp;sort_direction=descending"/>
             </n:sort>
-            <n:sort name="promotion" is_default="false" title="sort by promotion rank, ascending" release_status="beta"/>
+            <n:sort name="promotion" is_default="false" title="sort by promotion rank, ascending" release_status="supported"/>
             <n:sort name="release_date" is_default="false" title="sort chronologically by release date, descending" release_status="supported">
                 <n:sort_direction name="sort_direction" value="ascending" is_default="false" href="/nitro/api/programmes?sort=release_date&amp;sort_direction=ascending"/>
                 <n:sort_direction name="sort_direction" value="descending" is_default="true" href="/nitro/api/programmes?sort=release_date&amp;sort_direction=descending"/>
@@ -111,11 +110,12 @@
         </n:sorts>
         <n:mixins>
             <n:mixin name="ancestor_titles" title="mixin to return ancestor programme titles" release_status="supported" href="/nitro/api/programmes?mixin=ancestor_titles"/>
-            <n:mixin name="availability" title="mixin to return programme availability information" depends_on="availability" release_status="beta"/>
-            <n:mixin name="contributions" title="mixin to return information about contributors to a programme" release_status="beta" href="/nitro/api/programmes?mixin=contributions"/>
+            <n:mixin name="availability" title="mixin to return programme availability information" depends_on="availability" release_status="supported"/>
+            <n:mixin name="contributions" title="mixin to return information about contributors to a programme" release_status="supported" href="/nitro/api/programmes?mixin=contributions"/>
             <n:mixin name="duration" title="mixin to return original version duration in programme concept entities" release_status="supported" href="/nitro/api/programmes?mixin=duration"/>
             <n:mixin name="genre_groups" title="mixin to return list of genre groups" release_status="beta" href="/nitro/api/programmes?mixin=genre_groups"/>
             <n:mixin name="images" title="mixin to add image information for a programme" release_status="alpha" href="/nitro/api/programmes?mixin=images"/>
+            <n:mixin name="is_embeddable" title="mixin to add embeddable information for a programme" release_status="alpha" href="/nitro/api/programmes?mixin=is_embeddable"/>
             <n:mixin name="people" title="mixin to return information about contributors to a programme" release_status="deprecated" deprecated="true" deprecated_since="2014-05-02" replaced_by="contributions" href="/nitro/api/programmes?mixin=people"/>
             <n:mixin name="previous_next" title="mixin to return the programmes which appear before and after a programme (as determined by the sort applied in the request)" release_status="alpha" href="/nitro/api/programmes?mixin=previous_next"/>
             <n:mixin name="related_links" title="mixin to return information about related links to a programme" release_status="supported" href="/nitro/api/programmes?mixin=related_links"/>
@@ -131,8 +131,8 @@
             <n:filter name="media_set" type="string" title="filter for subset of availabilities with media set" multiple_values="true" release_status="supported"/>
             <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1" release_status="supported"/>
             <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10" release_status="supported"/>
-            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="beta" multiple_values="true" prefer="partner_pid"/>
-            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="beta" multiple_values="true" default="s0000001"/>
+            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="supported" multiple_values="true" prefer="partner_pid"/>
+            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="supported" multiple_values="true" default="s0000001"/>
             <n:filter name="territory" type="string" title="filter for availabilities in given territory" release_status="supported">
                 <n:option value="uk" title="filter for only UK availabilities" href="/nitro/api/availabilities?territory=uk"/>
                 <n:option value="nonuk" title="filter for only non-UK availabilities" href="/nitro/api/availabilities?territory=nonuk"/>
@@ -158,8 +158,8 @@
             <n:filter name="item" type="PID" title="filter for subset of broadcasts with the given item performed on it" multiple_values="true" release_status="supported"/>
             <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1" release_status="supported"/>
             <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10" release_status="supported"/>
-            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="beta" multiple_values="true" prefer="partner_pid"/>
-            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="beta" multiple_values="true" default="s0000001"/>
+            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="supported" multiple_values="true" prefer="partner_pid"/>
+            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="supported" multiple_values="true" default="s0000001"/>
             <n:filter name="people" type="string" title="filter for subset of broadcasts that have given contributor" release_status="supported"/>
             <n:filter name="pid" type="PID" title="filter for subset of broadcasts having given PID" multiple_values="true" release_status="supported"/>
             <n:filter name="q" type="string" title="filter for subset of broadcasts matching supplied keyword/phrase (boolean operators permitted)" release_status="supported"/>
@@ -184,8 +184,8 @@
     </n:feed>
     <n:feed name="Groups" rel="feed" href="/nitro/api/groups" title="Find metadata for curated groups: seasons, collections, galleries or franchises" release_status="supported">
         <n:filters>
-            <n:filter name="for_descendants_of" type="PID" title="filter for groups related to given programme or its descendants" release_status="beta"/>
-            <n:filter name="for_programme" type="PID" title="filter for subset of groups directly related to a given programme" release_status="beta"/>
+            <n:filter name="for_descendants_of" type="PID" title="filter for groups related to given programme or its descendants" release_status="supported"/>
+            <n:filter name="for_programme" type="PID" title="filter for subset of groups directly related to a given programme" release_status="supported"/>
             <n:filter name="group_type" type="string" title="filter for subset of groups that have the given group type" multiple_values="true" release_status="beta">
                 <n:option value="collection" title="filter for groups that are collections" href="/nitro/api/groups?group_type=collection"/>
                 <n:option value="franchise" title="filter for groups that are franchises" href="/nitro/api/groups?group_type=franchise"/>
@@ -194,10 +194,10 @@
             </n:filter>
             <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1" release_status="supported"/>
             <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10" release_status="supported"/>
-            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="beta" multiple_values="true" prefer="partner_pid"/>
-            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="beta" multiple_values="true" default="s0000001"/>
+            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="supported" multiple_values="true" prefer="partner_pid"/>
+            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="supported" multiple_values="true" default="s0000001"/>
             <n:filter name="pid" type="PID" title="filter for subset of seasons, collections, galleries or franchises having given PID" multiple_values="true" release_status="supported"/>
-            <n:filter name="q" type="string" title="filter for subset of groups matching supplied keyword/phrase (boolean operators permitted)" release_status="beta"/>
+            <n:filter name="q" type="string" title="filter for subset of groups matching supplied keyword/phrase (boolean operators permitted)" release_status="supported"/>
         </n:filters>
         <n:sorts>
             <n:sort name="pid" is_default="true" title="sort alphabetically by PID" release_status="supported">
@@ -205,7 +205,7 @@
             </n:sort>
         </n:sorts>
         <n:mixins>
-            <n:mixin name="group_for" title="mixin to return links to programme entities that group belongs to" release_status="beta" href="/nitro/api/groups?mixin=group_for"/>
+            <n:mixin name="group_for" title="mixin to return links to programme entities that group belongs to" release_status="supported" href="/nitro/api/groups?mixin=group_for"/>
             <n:mixin name="images" title="mixin to add image information for a group" release_status="alpha" href="/nitro/api/groups?mixin=images"/>
         </n:mixins>
     </n:feed>
@@ -214,8 +214,8 @@
             <n:filter name="group" type="PID" title="filter for images belonging to the given group (i.e. Gallery)" release_status="beta"/>
             <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1" release_status="supported"/>
             <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10" release_status="supported"/>
-            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="beta" multiple_values="true" prefer="partner_pid"/>
-            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="beta" multiple_values="true" default="s0000001"/>
+            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="supported" multiple_values="true" prefer="partner_pid"/>
+            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="supported" multiple_values="true" default="s0000001"/>
             <n:filter name="pid" type="PID" title="filter for subset of images having given PID" multiple_values="true" release_status="beta"/>
         </n:filters>
         <n:sorts>
@@ -242,13 +242,13 @@
             </n:filter>
             <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1" release_status="supported"/>
             <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10" release_status="supported"/>
-            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="beta" multiple_values="true" prefer="partner_pid"/>
-            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="beta" multiple_values="true" default="s0000001"/>
-            <n:filter name="people" type="string" title="filter for subset of items that have specified person involved" release_status="beta"/>
+            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="supported" multiple_values="true" prefer="partner_pid"/>
+            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="supported" multiple_values="true" default="s0000001"/>
+            <n:filter name="people" type="string" title="filter for subset of items that have specified person involved" release_status="supported"/>
             <n:filter name="pid" type="PID" title="filter for subset of items matching one of the given PIDs" multiple_values="true" release_status="supported"/>
             <n:filter name="programme" type="PID" title="filter for subset of items that are part of the given programme" release_status="supported"/>
             <n:filter name="q" type="string" title="filter for subset of items matching supplied keyword/phrase (boolean operators permitted)" release_status="supported"/>
-            <n:filter name="segment_event" type="string" title="filter for item with the given segment_event" release_status="beta"/>
+            <n:filter name="segment_event" type="string" title="filter for item with the given segment_event" release_status="supported"/>
         </n:filters>
         <n:sorts>
             <n:sort name="pid" is_default="true" title="sort by pid, descending" release_status="supported">
@@ -256,21 +256,20 @@
             </n:sort>
         </n:sorts>
         <n:mixins>
-            <n:mixin name="contributions" title="mixin to return information about contributors to items" release_status="beta" href="/nitro/api/items?mixin=contributions"/>
+            <n:mixin name="contributions" title="mixin to return information about contributors to items" release_status="supported" href="/nitro/api/items?mixin=contributions"/>
             <n:mixin name="images" title="mixin to add image information for an item" release_status="alpha" href="/nitro/api/items?mixin=images"/>
             <n:mixin name="offset" title="mixin to return programme segment offsets, works in conjunction with programme filter" depends_on="programme" release_status="deprecated" deprecated="true" deprecated_since="2014-05-06" replaced_by="play_event"/>
             <n:mixin name="play_event" title="mixin to return programme segment events, works in conjunction with programme filter" depends_on="programme" release_status="beta"/>
         </n:mixins>
     </n:feed>
-    <!-- Changed name from Masterbrands to MasterBrands because of errors in the build process -->
-    <n:feed name="MasterBrands" rel="feed" href="/nitro/api/master_brands" title="List all Master Brands">
+    <n:feed name="Masterbrands" rel="feed" href="/nitro/api/master_brands" title="List all Master Brands">
         <n:filters>
-            <n:filter name="mid" type="string" title="filter for subset of masterbrands that have given identifier" multiple_values="true" release_status="beta"/>
+            <n:filter name="mid" type="string" title="filter for subset of masterbrands that have given identifier" multiple_values="true" release_status="supported"/>
             <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1" release_status="supported"/>
             <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10" release_status="supported"/>
-            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="beta" multiple_values="true" prefer="partner_pid"/>
-            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="beta" multiple_values="true" default="s0000001"/>
-            <n:filter name="q" type="string" title="filter for subset of masterbrands matching supplied keyword/phrase (boolean operators permitted)" release_status="beta"/>
+            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="supported" multiple_values="true" prefer="partner_pid"/>
+            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="supported" multiple_values="true" default="s0000001"/>
+            <n:filter name="q" type="string" title="filter for subset of masterbrands matching supplied keyword/phrase (boolean operators permitted)" release_status="supported"/>
         </n:filters>
         <n:sorts>
             <n:sort name="mid" is_default="true" title="sort by mid, ascending" release_status="supported">
@@ -292,8 +291,8 @@
             <n:filter name="id_type" type="string" title="filter for subset of people that have given an ID of the given type" release_status="supported"/>
             <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1" release_status="supported"/>
             <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10" release_status="supported"/>
-            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="beta" multiple_values="true" prefer="partner_pid"/>
-            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="beta" multiple_values="true" default="s0000001"/>
+            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="supported" multiple_values="true" prefer="partner_pid"/>
+            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="supported" multiple_values="true" default="s0000001"/>
             <n:filter name="pid" type="PID" title="filter for subset of people having given PID" multiple_values="true" release_status="supported"/>
             <n:filter name="programme" type="string" title="filter for subset of people that have contributed to the given programme pid" release_status="supported"/>
             <n:filter name="q" type="string" title="filter for subset of people matching supplied keyword/phrase (boolean operators permitted)" release_status="supported"/>
@@ -303,18 +302,18 @@
         <n:filters>
             <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1" release_status="supported"/>
             <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10" release_status="supported"/>
-            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="beta" multiple_values="true" prefer="partner_pid"/>
-            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="beta" multiple_values="true" default="s0000001"/>
+            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="supported" multiple_values="true" prefer="partner_pid"/>
+            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="supported" multiple_values="true" default="s0000001"/>
             <n:filter name="q" type="string" title="filter for subset of programmes matching supplied keyword/phrase (boolean operators permitted)" release_status="supported"/>
         </n:filters>
     </n:feed>
     <n:feed name="Promotions" rel="feed" href="/nitro/api/promotions" title="Discover metadata for content promotions" release_status="supported">
         <n:filters>
-            <n:filter name="context" type="PID" title="filter for subset of promotions belonging to a given context" multiple_values="false" release_status="beta"/>
+            <n:filter name="context" type="PID" title="filter for subset of promotions belonging to a given context" multiple_values="false" release_status="supported"/>
             <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1" release_status="supported"/>
             <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10" release_status="supported"/>
-            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="beta" multiple_values="true" prefer="partner_pid"/>
-            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="beta" multiple_values="true" default="s0000001"/>
+            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="supported" multiple_values="true" prefer="partner_pid"/>
+            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="supported" multiple_values="true" default="s0000001"/>
             <n:filter name="pid" type="PID" title="filter for subset of promotions having given PID" multiple_values="true" release_status="supported"/>
             <n:filter name="promoted_by" type="string" title="filter for subset of promotions having given promoted by" multiple_values="true" release_status="supported"/>
             <n:filter name="promoted_for" type="string" title="filter for subset of promotions having given promoted for" multiple_values="true" release_status="supported"/>
@@ -325,24 +324,24 @@
     </n:feed>
     <n:feed name="Schedules" rel="feed" href="/nitro/api/schedules" title="Build schedules and find metadata for TV and radio broadcasts and webcasts" release_status="supported">
         <n:filters>
-            <n:filter name="authority" type="string" title="filter for subset of broadcasts and webcasts that have given authority" multiple_values="true" release_status="beta"/>
+            <n:filter name="authority" type="string" title="filter for subset of broadcasts and webcasts that have given authority" multiple_values="true" release_status="supported"/>
             <n:filter name="descendants_of" type="PID" title="filter for subset of broadcasts and webcasts that are descendants of the given programme PID" multiple_values="true" release_status="supported"/>
             <n:filter name="end_from" type="datetime" title="filter for subset of broadcasts and webcasts that end on or later than the specified datetime" release_status="supported"/>
             <n:filter name="end_to" type="datetime" title="filter for subset of broadcasts and webcasts that end on or earlier than the specified datetime" release_status="supported"/>
-            <n:filter name="format" type="string" title="filter for subset of broadcasts and webcasts that are classified in the given format ID" multiple_values="true" release_status="beta"/>
-            <n:filter name="genre" type="string" title="filter for subset of broadcasts and webcasts that are classified in the given genre ID" multiple_values="true" release_status="beta"/>
+            <n:filter name="format" type="string" title="filter for subset of broadcasts and webcasts that are classified in the given format ID" multiple_values="true" release_status="supported"/>
+            <n:filter name="genre" type="string" title="filter for subset of broadcasts and webcasts that are classified in the given genre ID" multiple_values="true" release_status="supported"/>
             <n:filter name="group" type="PID" title="filter for subset of broadcasts and webcasts that have programmes in the given group" release_status="supported"/>
-            <n:filter name="id" type="string" title="filter for subset of broadcasts and webcasts that have given identifier" multiple_values="true" release_status="beta"/>
-            <n:filter name="id_type" type="string" title="filter for subset of broadcasts and webcasts that have given id type" multiple_values="true" release_status="beta"/>
+            <n:filter name="id" type="string" title="filter for subset of broadcasts and webcasts that have given identifier" multiple_values="true" release_status="supported"/>
+            <n:filter name="id_type" type="string" title="filter for subset of broadcasts and webcasts that have given id type" multiple_values="true" release_status="supported"/>
             <n:filter name="item" type="PID" title="filter for subset of broadcasts with the given item performed on it" multiple_values="true" release_status="supported"/>
             <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1" release_status="supported"/>
             <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10" release_status="supported"/>
-            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="beta" multiple_values="true" prefer="partner_pid"/>
-            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="beta" multiple_values="true" default="s0000001"/>
+            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="supported" multiple_values="true" prefer="partner_pid"/>
+            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="supported" multiple_values="true" default="s0000001"/>
             <n:filter name="people" type="string" title="filter for subset of broadcasts and webcasts that have given contributor" release_status="supported"/>
             <n:filter name="pid" type="PID" title="filter for subset of broadcasts having given PID" multiple_values="true" release_status="supported"/>
             <n:filter name="q" type="string" title="filter for subset of broadcasts and webcasts matching supplied keyword/phrase (boolean operators permitted)" release_status="supported"/>
-            <n:filter name="repeat" type="boolean" title="filter to show either only repeats or non-repeats" release_status="beta"/>
+            <n:filter name="repeat" type="boolean" title="filter to show either only repeats or non-repeats" release_status="supported"/>
             <n:filter name="schedule_day" type="date" title="filter for subset of broadcasts and webcasts that start on the specified day (BBC time)" release_status="supported"/>
             <n:filter name="schedule_day_from" type="date" title="filter for subset of broadcasts and webcasts that start on or after the specified day (BBC time)" release_status="supported"/>
             <n:filter name="schedule_day_to" type="date" title="filter for subset of broadcasts and webcasts that start on or before the specified day (BBC time)" release_status="supported"/>
@@ -368,11 +367,11 @@
         <n:filters>
             <n:filter name="end_from" type="datetime" title="Return services that end on or later than the specified datetime" release_status="supported"/>
             <n:filter name="end_to" type="datetime" title="filter for subset of broadcasts that end on or earlier than the specified datetime" release_status="supported"/>
-            <n:filter name="mid" type="string" title="filter for services by masterbrand MID" release_status="beta" multiple_values="true"/>
+            <n:filter name="mid" type="string" title="filter for services by masterbrand MID" release_status="supported" multiple_values="true"/>
             <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1" release_status="supported"/>
             <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10" release_status="supported"/>
-            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="beta" multiple_values="true" prefer="partner_pid"/>
-            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="beta" multiple_values="true" default="s0000001"/>
+            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="supported" multiple_values="true" prefer="partner_pid"/>
+            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="supported" multiple_values="true" default="s0000001"/>
             <n:filter name="service_type" type="string" title="filter for specified type of linear services. one of: TV, Local Radio, National Radio, Regional Radio" multiple_values="true" release_status="supported">
                 <n:option value="TV" title="Return only TV services" href="/nitro/api/services?service_type=TV"/>
                 <n:option value="Local Radio" title="Return only Local Radio services" href="/nitro/api/services?service_type=Local+Radio"/>
@@ -394,8 +393,8 @@
             <n:filter name="media_set" type="string" title="filter for subset of versions with availability in the given media set" multiple_values="true" release_status="supported"/>
             <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1" release_status="supported"/>
             <n:filter name="page_size" type="integer" title="number of results in each page" min_value="0" max_value="300" default="10" release_status="supported"/>
-            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="beta" multiple_values="true" prefer="partner_pid"/>
-            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="beta" multiple_values="true" default="s0000001"/>
+            <n:filter name="partner_id" type="PID" title="filter for programmes by partner ID" release_status="supported" multiple_values="true" prefer="partner_pid"/>
+            <n:filter name="partner_pid" type="PID" title="filter for programmes by partner PID" release_status="supported" multiple_values="true" default="s0000001"/>
             <n:filter name="pid" type="PID" title="filter for subset of versions having given PID" multiple_values="true" release_status="supported"/>
         </n:filters>
     </n:feed>
