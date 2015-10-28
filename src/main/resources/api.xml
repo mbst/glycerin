@@ -9,7 +9,6 @@
                 <n:option value="available" title="filter for programmes that are available" release_status="supported" href="/nitro/api/programmes?availability=available"/>
                 <n:option value="pending" title="filter for programmes that are expected to become available imminently" release_status="supported" href="/nitro/api/programmes?availability=pending"/>
             </n:filter>
-            <n:filter name="availability" type="daytime_duration" title="filter for programmes that will become available within given duration" multiple_values="true" release_status="supported"/>
             <n:filter name="availability_entity_type" type="string" title="additional filter when availability=available" release_status="supported">
                 <n:option value="episode" title="filter for programmes with available episodes" href="/nitro/api/programmes?availability_entity_type=episode"/>
                 <n:option value="clip" title="filter for programmes with available clips" href="/nitro/api/programmes?availability_entity_type=clip"/>
@@ -262,7 +261,7 @@
             <n:mixin name="play_event" title="mixin to return programme segment events, works in conjunction with programme filter" depends_on="programme" release_status="beta"/>
         </n:mixins>
     </n:feed>
-    <n:feed name="Masterbrands" rel="feed" href="/nitro/api/master_brands" title="List all Master Brands">
+    <n:feed name="MasterBrands" rel="feed" href="/nitro/api/master_brands" title="List all Master Brands">
         <n:filters>
             <n:filter name="mid" type="string" title="filter for subset of masterbrands that have given identifier" multiple_values="true" release_status="supported"/>
             <n:filter name="page" type="integer" title="which page of results to return" min_value="1" default="1" release_status="supported"/>
