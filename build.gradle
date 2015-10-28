@@ -5,7 +5,7 @@ apply plugin: 'maven'
 sourceCompatibility = 1.7
 
 group 'com.metabroadcast.atlas.glycerin'
-version = '0.1.12'
+version = '1.0.0'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.8'

@@ -7,7 +7,7 @@ import com.metabroadcast.atlas.glycerin.model.Availability;
 import com.metabroadcast.atlas.glycerin.model.Broadcast;
 import com.metabroadcast.atlas.glycerin.model.Programme;
 import com.metabroadcast.atlas.glycerin.model.Service;
-import com.metabroadcast.atlas.glycerin.model.Version;
+import com.metabroadcast.atlas.glycerin.model.Versions;
 import com.metabroadcast.atlas.glycerin.queries.AvailabilityQuery;
 import com.metabroadcast.atlas.glycerin.queries.BroadcastsQuery;
 import com.metabroadcast.atlas.glycerin.queries.ProgrammesQuery;
@@ -86,7 +86,7 @@ public class XmlGlycerin implements Glycerin {
     }
 
     @Override
-    public GlycerinResponse<Version> execute(VersionsQuery query) throws GlycerinException {
+    public GlycerinResponse<Versions> execute(VersionsQuery query) throws GlycerinException {
         return executeQuery(query);
     }
     
