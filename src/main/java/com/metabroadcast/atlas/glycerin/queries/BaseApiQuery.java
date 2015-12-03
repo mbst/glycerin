@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBElement;
+
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.repackaged.com.google.common.base.Strings;
 import com.google.common.base.Function;
@@ -17,7 +19,6 @@ import com.metabroadcast.atlas.glycerin.GlycerinQuery;
 import com.metabroadcast.atlas.glycerin.model.Next;
 import com.metabroadcast.atlas.glycerin.model.Nitro;
 import com.metabroadcast.atlas.glycerin.model.Pagination;
-
 
 public abstract class BaseApiQuery<TRANSFORMED> extends GlycerinQuery<Nitro, TRANSFORMED> {
 
@@ -44,6 +45,10 @@ public abstract class BaseApiQuery<TRANSFORMED> extends GlycerinQuery<Nitro, TRA
             @Override
             public TRANSFORMED apply(Object input) {
                 Object res = input;
+                if(input.getClass().getSimpleName().equals("JAXBElement")) {
+                    JAXBElement re = (JAXBElement) res;
+                    return resultsType().cast(re.getValue());
+                }
                 if (!resultsType().isAssignableFrom(input.getClass())) {
                     Method method;
                     try {

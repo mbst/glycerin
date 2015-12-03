@@ -10,12 +10,14 @@ import org.joda.time.LocalDate;
 
 import com.metabroadcast.atlas.glycerin.model.Feed;
 import com.metabroadcast.atlas.glycerin.model.Filter;
+import com.metabroadcast.atlas.glycerin.model.GroupBody;
 import com.metabroadcast.atlas.glycerin.model.Mixin;
 import com.metabroadcast.atlas.glycerin.model.Option;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.metabroadcast.atlas.glycerin.model.Results;
 import com.metabroadcast.atlas.glycerin.queries.BaseApiQuery;
 import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JClass;
@@ -171,6 +173,14 @@ public class FeedQueryGenerator {
     private JClass getTransformedType(Feed feed) {
         Class<?> cls = null;
         String name = feed.getName();
+        if(name.equals("Versions")) {
+            cls = Results.Version.class;
+            return model.ref(cls);
+        }
+        if(name.equals("Groups")) {
+            cls = GroupBody.class;
+            return model.ref(cls);
+        }
         cls = tryLoadClass(MODEL_PKG + name);
         if (cls == null) {//attempt in possible naive singular.
             cls = tryLoadClass(MODEL_PKG + name.substring(0, name.length()-1));

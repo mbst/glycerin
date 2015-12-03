@@ -1,7 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema targetNamespace="http://www.bbc.co.uk/nitro/" elementFormDefault="qualified"
-           attributeFormDefault="unqualified" xmlns="http://www.bbc.co.uk/nitro/"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<?xml version="1.0" encoding="UTF-8"?><xs:schema targetNamespace="http://www.bbc.co.uk/nitro/" elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns="http://www.bbc.co.uk/nitro/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:element name="nitro">
         <xs:complexType>
             <xs:sequence>
@@ -387,6 +384,7 @@
     <xs:group name="versions_mixin">
         <xs:sequence>
             <xs:element ref="versions" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="available_versions" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
     </xs:group>
     <xs:element name="versions">
@@ -401,14 +399,12 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element name="duration" minOccurs="0" maxOccurs="1" type="xs:duration"/>
-                        <xs:element name="competition_warning" minOccurs="0" maxOccurs="1"
-                                    type="xs:string"/>
+                        <xs:element name="competition_warning" minOccurs="0" maxOccurs="1" type="xs:string"/>
                         <xs:group ref="guidance_warnings" minOccurs="0" maxOccurs="1"/>
                         <xs:element name="types" maxOccurs="unbounded">
                             <xs:complexType>
                                 <xs:sequence>
-                                    <xs:element name="type" minOccurs="0" maxOccurs="unbounded"
-                                                type="xs:string"/>
+                                    <xs:element name="type" minOccurs="0" maxOccurs="unbounded" type="xs:string"/>
                                 </xs:sequence>
                             </xs:complexType>
                         </xs:element>
@@ -428,13 +424,58 @@
             <xs:element name="availability">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="availability_start" minOccurs="0" maxOccurs="1"
-                                    type="xs:dateTime"/>
-                        <xs:element name="availability_end" minOccurs="0" maxOccurs="1"
-                                    type="xs:dateTime"/>
+                        <xs:element name="availability_start" minOccurs="0" maxOccurs="1" type="xs:dateTime"/>
+                        <xs:element name="availability_end" minOccurs="0" maxOccurs="1" type="xs:dateTime"/>
                         <xs:group ref="available_media_sets" maxOccurs="1"/>
                     </xs:sequence>
                     <xs:attribute name="status" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:group>
+    <xs:element name="available_versions">
+        <xs:complexType>
+            <xs:group ref="available_versions_mixin"/>
+            <xs:attribute name="available" type="xs:integer" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:group name="available_versions_mixin">
+        <xs:sequence>
+            <xs:element name="version" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="duration" minOccurs="0" maxOccurs="1" type="xs:duration"/>
+                        <xs:element name="competition_warning" minOccurs="0" maxOccurs="1" type="xs:boolean"/>
+                        <xs:group ref="guidance_warnings" minOccurs="0" maxOccurs="1"/>
+                        <xs:element name="types" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="type" minOccurs="0" maxOccurs="unbounded" type="xs:string"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="availabilities" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:group ref="available_versions_availability" maxOccurs="unbounded"/>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                    <xs:attribute name="pid" type="pid"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:group>
+    <xs:group name="available_versions_availability">
+        <xs:sequence>
+            <xs:element name="availability">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="scheduled_start" minOccurs="0" maxOccurs="1" type="xs:dateTime"/>
+                        <xs:element name="scheduled_end" minOccurs="0" maxOccurs="1" type="xs:dateTime"/>
+                        <xs:group ref="available_versions_media_sets" maxOccurs="1"/>
+                    </xs:sequence>
+                    <xs:attribute name="status" type="xs:string"/>
+                    <xs:attribute name="type" type="xs:string"/>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
@@ -474,7 +515,31 @@
             <xs:element name="media_sets" minOccurs="0" maxOccurs="1">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="media_set" maxOccurs="unbounded" type="xs:string"/>
+                        <xs:element name="media_set" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:simpleContent>
+                                    <xs:extension base="xs:string"/>
+                                </xs:simpleContent>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:group>
+    <xs:group name="available_versions_media_sets">
+        <xs:sequence>
+            <xs:element name="media_sets" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="media_set" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="actual_start" minOccurs="0" maxOccurs="1" type="xs:dateTime"/>
+                                    <xs:element name="name" minOccurs="1" maxOccurs="1" type="xs:string"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -651,8 +716,7 @@
             <xs:element name="people">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:group ref="people_mixin_contribution" minOccurs="0"
-                                  maxOccurs="unbounded"/>
+                        <xs:group ref="people_mixin_contribution" minOccurs="0" maxOccurs="unbounded"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -692,8 +756,7 @@
             <xs:element name="contributions">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:group ref="contributions_mixin_contribution" minOccurs="0"
-                                  maxOccurs="unbounded"/>
+                        <xs:group ref="contributions_mixin_contribution" minOccurs="0" maxOccurs="unbounded"/>
                     </xs:sequence>
                     <xs:attribute name="href" type="xs:anyURI"/>
                 </xs:complexType>
