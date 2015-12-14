@@ -36,7 +36,7 @@
                 <xs:element ref="series"/>
                 <xs:element ref="episode"/>
                 <xs:element ref="clip"/>
-                <xs:group ref="version_group"/>
+                <xs:element ref="version"/>
                 <xs:element ref="broadcast"/>
                 <xs:element ref="service"/>
                 <xs:element ref="music"/>
@@ -691,26 +691,22 @@
         </xs:complexType>
     </xs:element>
     <xs:element name="position" type="xs:integer"/>
-    <xs:group name="version_group">
-        <xs:sequence>
-            <xs:element name="version">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element ref="pid"/>
-                        <xs:element ref="ids" minOccurs="0"/>
-                        <xs:element name="aspect_ratio" minOccurs="0" type="xs:string"/>
-                        <xs:element ref="competition_warning" minOccurs="0"/>
-                        <xs:element name="duration" minOccurs="0" type="xs:duration"/>
-                        <xs:element ref="updated_time"/>
-                        <xs:group ref="version_types_with_id" minOccurs="0"/>
-                        <xs:group ref="types_with_id" minOccurs="0"/>
-                        <xs:element ref="warnings" minOccurs="0"/>
-                        <xs:element ref="version_of" minOccurs="0"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-        </xs:sequence>
-    </xs:group>
+    <xs:element name="version">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="pid"/>
+                <xs:element ref="ids" minOccurs="0"/>
+                <xs:element name="aspect_ratio" minOccurs="0" type="xs:string"/>
+                <xs:element ref="competition_warning" minOccurs="0"/>
+                <xs:element name="duration" minOccurs="0" type="xs:duration"/>
+                <xs:element ref="updated_time"/>
+                <xs:group ref="version_types_with_id" minOccurs="0"/>
+                <xs:group ref="types_with_id" minOccurs="0"/>
+                <xs:element ref="warnings" minOccurs="0"/>
+                <xs:element ref="version_of" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
     <xs:group name="people_mixin">
         <xs:sequence>
             <xs:element name="people">
@@ -725,7 +721,7 @@
     <xs:group name="people_mixin_contribution">
         <xs:sequence>
             <xs:element name="contribution">
-                <xs:complexType mixed="true">
+                <xs:complexType>
                     <xs:sequence>
                         <xs:group ref="people_mixin_contributor_name" minOccurs="0"/>
                     </xs:sequence>
@@ -766,7 +762,7 @@
     <xs:group name="contributions_mixin_contribution">
         <xs:sequence>
             <xs:element name="contribution">
-                <xs:complexType mixed="true">
+                <xs:complexType>
                     <xs:sequence>
                         <xs:element name="credit_role" minOccurs="0">
                             <xs:complexType>

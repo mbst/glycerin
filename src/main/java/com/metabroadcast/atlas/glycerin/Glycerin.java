@@ -3,7 +3,7 @@ package com.metabroadcast.atlas.glycerin;
 import com.metabroadcast.atlas.glycerin.model.Availability;
 import com.metabroadcast.atlas.glycerin.model.Broadcast;
 import com.metabroadcast.atlas.glycerin.model.Programme;
-import com.metabroadcast.atlas.glycerin.model.Results;
+import com.metabroadcast.atlas.glycerin.model.Version;
 import com.metabroadcast.atlas.glycerin.model.Service;
 import com.metabroadcast.atlas.glycerin.queries.AvailabilityQuery;
 import com.metabroadcast.atlas.glycerin.queries.BroadcastsQuery;
@@ -21,6 +21,6 @@ public interface Glycerin {
 
     GlycerinResponse<Service> execute(ServicesQuery query) throws GlycerinException;
     
-    GlycerinResponse<Results.Version> execute(VersionsQuery query) throws GlycerinException;
+    GlycerinResponse<Version> execute(VersionsQuery query) throws GlycerinException;
 
 }

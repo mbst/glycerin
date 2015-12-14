@@ -17,7 +17,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.metabroadcast.atlas.glycerin.model.Results;
+import com.metabroadcast.atlas.glycerin.model.Version;
 import com.metabroadcast.atlas.glycerin.queries.BaseApiQuery;
 import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JClass;
@@ -174,7 +174,7 @@ public class FeedQueryGenerator {
         Class<?> cls = null;
         String name = feed.getName();
         if(name.equals("Versions")) {
-            cls = Results.Version.class;
+            cls = Version.class;
             return model.ref(cls);
         }
         if(name.equals("Groups")) {

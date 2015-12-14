@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Iterables;
 import com.google.common.net.HostSpecifier;
 import com.metabroadcast.atlas.glycerin.model.Programme;
-import com.metabroadcast.atlas.glycerin.model.Results;
+import com.metabroadcast.atlas.glycerin.model.Version;
 import com.metabroadcast.atlas.glycerin.queries.ProgrammesQuery;
 import com.metabroadcast.atlas.glycerin.queries.VersionsQuery;
 
@@ -87,8 +87,8 @@ public class GlycerinIntegrationTest {
     @Test(groups = "integration")
     public void testVersionResults() throws GlycerinException {
         VersionsQuery versionsQuery = VersionsQuery.builder().withPid("p0361000").build();
-        GlycerinResponse<Results.Version> response = glycerin.execute(versionsQuery);
-        Results.Version version = Iterables.getOnlyElement(response.getResults());
+        GlycerinResponse<Version> response = glycerin.execute(versionsQuery);
+        Version version = Iterables.getOnlyElement(response.getResults());
         assertEquals("p0361000", version.getPid());
     }
 }
