@@ -9,7 +9,6 @@
                 <n:option value="available" title="filter for programmes that are available" release_status="supported" href="/nitro/api/programmes?availability=available"/>
                 <n:option value="pending" title="filter for programmes that are expected to become available imminently" release_status="supported" href="/nitro/api/programmes?availability=pending"/>
             </n:filter>
-            <!--the current parser doesn't handle multiple fields with the same name-->
             <!--<n:filter name="availability" type="daytime_duration" title="filter for programmes that will become available within given duration" multiple_values="true" release_status="supported"/>-->
             <n:filter name="availability_entity_type" type="string" title="additional filter when availability=available" release_status="supported">
                 <n:option value="episode" title="filter for programmes with available episodes" href="/nitro/api/programmes?availability_entity_type=episode"/>
@@ -115,6 +114,7 @@
             </n:mixin>
             <n:mixin name="ancestor_titles" title="mixin to return ancestor programme titles" release_status="supported" href="/nitro/api/programmes?mixin=ancestor_titles"/>
             <n:mixin name="availability" title="mixin to return programme availability information" depends_on="availability" release_status="supported"/>
+            <n:mixin name="available_versions" title="mixin to return information about programmes that are currently available" release_status="supported" href="/nitro/api/programmes?mixin=available_versions"/>
             <n:mixin name="contributions" title="mixin to return information about contributors to a programme" release_status="supported" href="/nitro/api/programmes?mixin=contributions"/>
             <n:mixin name="duration" title="mixin to return original version duration in programme concept entities" release_status="supported" href="/nitro/api/programmes?mixin=duration"/>
             <n:mixin name="genre_groupings" title="mixin to return list of genre groupings" release_status="supported" href="/nitro/api/programmes?mixin=genre_groupings">
@@ -144,14 +144,13 @@
             <n:deprecated name="availability_to" type="filter" deprecated_since="2014-01-22"/>
             <n:deprecated name="initial_letter_stop" type="filter" deprecated_since="2014-01-22" replaced_by="initial_letter_end" replacement_type="filter"/>
             <n:deprecated name="most_popular" type="sort" deprecated_since="2013-11-11" replaced_by="views" replacement_type="sort"/>
+            <n:deprecated name="versions_availability" type="mixin" deprecated_since="2015-11-10" replaced_by="available_versions" replacement_type="mixin"/>
             <n:deprecated name="people" type="mixin" deprecated_since="2014-05-02" replaced_by="contributions" replacement_type="mixin"/>
             <n:deprecated name="titles" type="mixin" deprecated_since="2013-11-14" replaced_by="ancestor_titles" replacement_type="mixin"/>
             <n:deprecated name="genre_groups" type="mixin" deprecated_since="2015-03-19" replaced_by="genre_groupings" replacement_type="mixin"/>
             <n:deprecated name="n:formats" type="element" deprecated_since="2015-03-23" replaced_by="n:programme_formats" replacement_type="element"/>
             <n:deprecated name="n:genre_groups" type="element" deprecated_since="2015-03-23" replaced_by="n:genre_groupings" replacement_type="element"/>
             <n:deprecated name="n:image" type="element" deprecated_since="2014-07-09" replaced_by="images" replacement_type="mixin"/>
-            <n:deprecated name="n:availability_start" type="element" deprecated_since="2015-10-06" replaced_by="n:scheduled_start" replacement_type="element"/>
-            <n:deprecated name="n:availability_end" type="element" deprecated_since="2015-10-06" replaced_by="n:scheduled_end" replacement_type="element"/>
         </n:deprecations>
     </n:feed>
     <n:feed name="Availability" rel="feed" href="/nitro/api/availabilities" title="Discover details of on-demand availability for programmes and their versions" release_status="supported">
