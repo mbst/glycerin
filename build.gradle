@@ -53,8 +53,8 @@ dependencies {
     archives 'org.apache.maven.wagon:wagon-webdav:1.0-beta-2'
 }
 
-def generatedSourcesDirName = "generated-sources"
-def generatedSourcesPath = "${project.buildDir}/${generatedSourcesDirName}"
+def generatedSourcesPath = "${project.buildDir}/generated-sources"
+def generatedXsdDir = "${project.buildDir}/generated-schema"
 def generatedQueriesPkg = "com.metabroadcast.atlas.glycerin.queries"
 def generatedXmlModelPkg = "com.metabroadcast.atlas.glycerin.model"
 def generatedSourcesDir = file(generatedSourcesPath)
@@ -74,20 +74,31 @@ sonarqube {
 
 task createGeneratedSourcesDir {
     outputs.dir generatedSourcesDir
-    doLast{ project.mkdir(generatedSourcesPath) }
+    doLast { project.mkdir(generatedSourcesPath) }
 }
 
-task generateXmlSource {
-    inputs.files sourceSets.main.resources.asFileTree.matching { include '**/*.xsd' }
+task createGeneratedXsdDir {
+    outputs.dir generatedXsdDir
+    doLast { project.mkdir(generatedXsdDir) }
+}
+// TODO when you do ./gradlew --daemon clean build the build fails, need to fix this.
+task transformSchema(dependsOn: createGeneratedXsdDir) {
+    ant.xslt(in: 'src/main/resources/nitro-schema.xsd',
+            style: 'src/main/resources/nitro-schema.xsl',
+            out: "${generatedXsdDir}/nitro-schema.xsd")
+
+}
+
+task generateXmlSource(dependsOn: ['transformSchema', 'createGeneratedSourcesDir']) {
+    inputs.files fileTree(dir: generatedXsdDir, include: '**/*.xsd')
     outputs.dir generatedXmlModelDir
     doLast {
         ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJCTask', classpath: configurations.xjc.asPath)
         ant.xjc(destdir: generatedSourcesPath, package: generatedXmlModelPkg, extension: 'true') {
-            schema(dir: new File('src/main/resources'), includes:'**/*.xsd')
+            schema(dir: new File("${generatedXsdDir}"), includes: '**/*.xsd')
         }
     }
 }
-generateXmlSource.dependsOn createGeneratedSourcesDir
 
 task fetchApiDescription {
     doLast {
@@ -95,7 +106,7 @@ task fetchApiDescription {
             src: "http://programmes.api.bbc.com/nitro/api?api_key="+System.properties['nitro.apikey'],
             dest: new File('src/main/resources')
         ) {
-            mapper(type:"regexp", from:".*api\\?.*",to:"api.xml")
+            mapper(type: "regexp", from: ".*api\\?.*", to: "api.xml")
         }
     }
 }
@@ -104,8 +115,8 @@ sourceSets {
     main {
         java {
             srcDirs = [
-                'src/main/java',
-                generatedSourcesPath
+                    'src/main/java',
+                    generatedSourcesPath
             ]
         }
     }
@@ -115,14 +126,14 @@ sourceSets {
 }
 
 compileQueriesJava.classpath = compileJava.classpath + compileQueriesJava.classpath
-compileQueriesJava.source sourceSets.queries.allJava, generatedXmlModelDir, 
-    sourceSets.main.allJava.asFileTree.matching { 
-        include '**/GlycerinResponse.java' 
-        include '**/GlycerinException.java' 
-        include '**/GlycerinQuery.java' 
-        include '**/model/*.java' 
-        include '**/queries/*.java' 
-    }
+compileQueriesJava.source sourceSets.queries.allJava, generatedXmlModelDir,
+        sourceSets.main.allJava.asFileTree.matching {
+            include '**/GlycerinResponse.java'
+            include '**/GlycerinException.java'
+            include '**/GlycerinQuery.java'
+            include '**/model/*.java'
+            include '**/queries/*.java'
+        }
 compileQueriesJava.dependsOn generateXmlSource
 
 task generateQueries(type: JavaExec, dependsOn: compileQueriesJava) {
@@ -130,7 +141,7 @@ task generateQueries(type: JavaExec, dependsOn: compileQueriesJava) {
     inputs.file file(ext.descriptor)
     outputs.dir generatedQueriesDir
     classpath sourceSets.queries.output, configurations.compile, configurations.queriesCompile
-    args generatedSourcesPath, ext.descriptor, generatedQueriesPkg, generatedXmlModelPkg 
+    args generatedSourcesPath, ext.descriptor, generatedQueriesPkg, generatedXmlModelPkg
     main 'com.metabroadcast.atlas.glycerin.generator.QueryGenerator'
 }
 
@@ -183,7 +194,7 @@ artifacts { archives sourceJar, javadocJar }
 
 //Get maven repo credentials - TODO just provide these as system properties?
 def getMavenSettingsCredentials = {
-    String userHome = System.getProperty( "user.home" );
+    String userHome = System.getProperty("user.home");
     File mavenSettings = new File(userHome, ".m2/settings.xml")
     def xmlSlurper = new XmlSlurper()
     def output = xmlSlurper.parse(mavenSettings)
@@ -193,7 +204,7 @@ def getMavenSettingsCredentials = {
 def getCredentials = {
     def entries = getMavenSettingsCredentials()
     for (entry in entries) {
-        if ( entry."id".text() == "metabroadcast-mvn" ) {
+        if (entry."id".text() == "metabroadcast-mvn") {
             return [username: entry.username.text(), password: entry.password.text()]
         }
     }

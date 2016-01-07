@@ -36,7 +36,7 @@
                 <xs:element ref="series"/>
                 <xs:element ref="episode"/>
                 <xs:element ref="clip"/>
-                <xs:element ref="version"/>
+                <xs:group ref="version_group"/>
                 <xs:element ref="broadcast"/>
                 <xs:element ref="service"/>
                 <xs:element ref="music"/>
@@ -691,22 +691,26 @@
         </xs:complexType>
     </xs:element>
     <xs:element name="position" type="xs:integer"/>
-    <xs:element name="version">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element ref="pid"/>
-                <xs:element ref="ids" minOccurs="0"/>
-                <xs:element name="aspect_ratio" minOccurs="0" type="xs:string"/>
-                <xs:element ref="competition_warning" minOccurs="0"/>
-                <xs:element name="duration" minOccurs="0" type="xs:duration"/>
-                <xs:element ref="updated_time"/>
-                <xs:group ref="version_types_with_id" minOccurs="0"/>
-                <xs:group ref="types_with_id" minOccurs="0"/>
-                <xs:element ref="warnings" minOccurs="0"/>
-                <xs:element ref="version_of" minOccurs="0"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+    <xs:group name="version_group">
+        <xs:sequence>
+            <xs:element name="version">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="pid"/>
+                        <xs:element ref="ids" minOccurs="0"/>
+                        <xs:element name="aspect_ratio" minOccurs="0" type="xs:string"/>
+                        <xs:element ref="competition_warning" minOccurs="0"/>
+                        <xs:element name="duration" minOccurs="0" type="xs:duration"/>
+                        <xs:element ref="updated_time"/>
+                        <xs:group ref="version_types_with_id" minOccurs="0"/>
+                        <xs:group ref="types_with_id" minOccurs="0"/>
+                        <xs:element ref="warnings" minOccurs="0"/>
+                        <xs:element ref="version_of" minOccurs="0"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:group>
     <xs:group name="people_mixin">
         <xs:sequence>
             <xs:element name="people">
@@ -721,7 +725,7 @@
     <xs:group name="people_mixin_contribution">
         <xs:sequence>
             <xs:element name="contribution">
-                <xs:complexType>
+                <xs:complexType mixed="true">
                     <xs:sequence>
                         <xs:group ref="people_mixin_contributor_name" minOccurs="0"/>
                     </xs:sequence>
@@ -762,7 +766,7 @@
     <xs:group name="contributions_mixin_contribution">
         <xs:sequence>
             <xs:element name="contribution">
-                <xs:complexType>
+                <xs:complexType mixed="true">
                     <xs:sequence>
                         <xs:element name="credit_role" minOccurs="0">
                             <xs:complexType>
@@ -1327,6 +1331,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="feed"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="deprecations"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -1396,6 +1401,7 @@
             <xs:attribute name="release_status" type="release_status_type"/>
             <xs:attribute name="required" type="xs:boolean"/>
             <xs:attribute name="prefer" type="xs:string"/>
+            <xs:attribute name="depends_on" type="xs:string"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="unstable_filters">
@@ -1421,7 +1427,7 @@
     </xs:element>
     <xs:element name="option">
         <xs:complexType>
-            <xs:attribute name="href" use="required" type="xs:anyURI"/>
+            <xs:attribute name="href" type="xs:anyURI"/>
             <xs:attribute name="value" use="required" type="xs:string"/>
             <xs:attribute name="title" use="required" type="xs:token"/>
             <xs:attribute name="release_status" type="release_status_type"/>
