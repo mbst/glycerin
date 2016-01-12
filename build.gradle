@@ -1,3 +1,7 @@
+plugins {
+    id "org.sonarqube" version "1.1"
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
@@ -49,12 +53,24 @@ dependencies {
     archives 'org.apache.maven.wagon:wagon-webdav:1.0-beta-2'
 }
 
-def generatedSourcesPath = "${project.buildDir}/generated-sources"
+def generatedSourcesDirName = "generated-sources"
+def generatedSourcesPath = "${project.buildDir}/${generatedSourcesDirName}"
 def generatedQueriesPkg = "com.metabroadcast.atlas.glycerin.queries"
 def generatedXmlModelPkg = "com.metabroadcast.atlas.glycerin.model"
 def generatedSourcesDir = file(generatedSourcesPath)
 def generatedXmlModelDir = new File(generatedSourcesDir, generatedXmlModelPkg.replace('.', '/'))
 def generatedQueriesDir = new File(generatedSourcesDir, generatedQueriesPkg.replace('.', '/'))
+
+// TODO: would be nice to have coverage, but we only have integration tests for this
+/*
+  TODO: the exclusions are done this way because it needs to be a pattern;
+  using ${generatedSourcesPath} would make an absolute path, which would be different on the server
+*/
+sonarqube {
+    properties {
+        property "sonar.exclusions", "**/${generatedSourcesDirName}/**/*"
+    }
+}
 
 task createGeneratedSourcesDir {
     outputs.dir generatedSourcesDir
