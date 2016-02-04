@@ -16,7 +16,7 @@ import com.metabroadcast.atlas.glycerin.queries.VersionsQuery;
 
 public class XmlGlycerin implements Glycerin {
     
-    private static final String DEFAULT_HOST = "d.bbc.co.uk";
+    private static final String DEFAULT_HOST = "programmes.api.bbc.com";
     
     public static Builder builder(String apiKey) {
         return new Builder(apiKey);

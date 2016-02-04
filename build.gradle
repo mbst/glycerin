@@ -92,7 +92,7 @@ generateXmlSource.dependsOn createGeneratedSourcesDir
 task fetchApiDescription {
     doLast {
         ant.get(
-            src: "http://d.bbc.co.uk/nitro/api?api_key="+System.properties['nitro.apikey'],
+            src: "http://programmes.api.bbc.com/nitro/api?api_key="+System.properties['nitro.apikey'],
             dest: new File('src/main/resources')
         ) {
             mapper(type:"regexp", from:".*api\\?.*",to:"api.xml")
