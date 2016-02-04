@@ -11,8 +11,11 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Iterables;
 import com.google.common.net.HostSpecifier;
+import com.metabroadcast.atlas.glycerin.model.Episode;
 import com.metabroadcast.atlas.glycerin.model.Programme;
 import com.metabroadcast.atlas.glycerin.model.Version;
+import com.metabroadcast.atlas.glycerin.queries.GroupsMixin;
+import com.metabroadcast.atlas.glycerin.queries.ProgrammesMixin;
 import com.metabroadcast.atlas.glycerin.queries.ProgrammesQuery;
 import com.metabroadcast.atlas.glycerin.queries.VersionsQuery;
 
@@ -91,4 +94,47 @@ public class GlycerinIntegrationTest {
         Version version = Iterables.getOnlyElement(response.getResults());
         assertEquals("p0361000", version.getPid());
     }
+
+    @Test(groups = "integration")
+    public void testProgrammesQueryWithGenres() throws GlycerinException {
+        ProgrammesQuery programmesQuery = ProgrammesQuery.builder().withPid("b039gr8y").withMixins(
+                ProgrammesMixin.GENRE_GROUPINGS).build();
+        GlycerinResponse<Programme> response = glycerin.execute(programmesQuery);
+        Programme programme = Iterables.getOnlyElement(response.getResults());
+        String value = programme.getAsEpisode().getGenreGroupings().getGenreGroup().get(0).getGenres().getGenre().get(0).getValue();
+        assertEquals("Factual", value);
+    }
+
+    @Test(groups = "integration")
+    public void testProgrammesQueryWithImages() throws GlycerinException {
+        ProgrammesQuery programmesQuery = ProgrammesQuery.builder().withPid("b039gr8y").withMixins(
+                ProgrammesMixin.IMAGES).build();
+        GlycerinResponse<Programme> response = glycerin.execute(programmesQuery);
+        Programme programme = Iterables.getOnlyElement(response.getResults());
+        String value = programme.getAsEpisode().getImage().getTemplateUrl();
+        assertEquals("http://ichef.bbci.co.uk/images/ic/$recipe/p01k0trp.jpg", value);
+
+    }
+
+    @Test(groups = "integration")
+    public void testProgrammesQueryWithAncestorTitles() throws GlycerinException {
+        ProgrammesQuery programmesQuery = ProgrammesQuery.builder().withPid("b039gr8y").withMixins(
+                ProgrammesMixin.ANCESTOR_TITLES).build();
+        GlycerinResponse<Programme> response = glycerin.execute(programmesQuery);
+        Programme programme = Iterables.getOnlyElement(response.getResults());
+        String value = programme.getAsEpisode().getAncestorTitles().getSeries().get(0).getPid();
+        assertEquals("p01db7nj", value);
+
+    }
+
+    @Test(groups = "integration")
+    public void testProgrammesQueryWithContributions() throws GlycerinException {
+        ProgrammesQuery programmesQuery = ProgrammesQuery.builder().withPid("b039gr8y").withMixins(
+                ProgrammesMixin.CONTRIBUTIONS).build();
+        GlycerinResponse<Programme> response = glycerin.execute(programmesQuery);
+        Programme programme = Iterables.getOnlyElement(response.getResults());
+        String value = programme.getAsEpisode().getContributions().getContributionsMixinContribution().get(0).getContributor().getName().getGiven();
+        assertEquals("Sue", value);
+    }
+
 }
