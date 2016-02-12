@@ -35,11 +35,15 @@ public class GlycerinDeprecatedElementsTest {
 
         for (Feed feed : response.getResults()) {
             String feedName = feed.getName();
-            for (Deprecated deprecated : feed.getDeprecations().getDeprecated()) {
-                if (!ignorableDeprecations.containsEntry(feedName, deprecated.getName())) {
-                    deprecatedFields.add(String.format(
-                            "Feed - %s : deprecated element - %s", feedName, deprecated.getName()
-                    ));
+            if (feed.getDeprecations() != null && feed.getDeprecations().getDeprecated() != null) {
+                for (Deprecated deprecated : feed.getDeprecations().getDeprecated()) {
+                    if (!ignorableDeprecations.containsEntry(feedName, deprecated.getName())) {
+                        deprecatedFields.add(String.format(
+                                "Feed - %s : deprecated element - %s",
+                                feedName,
+                                deprecated.getName()
+                        ));
+                    }
                 }
             }
         }
