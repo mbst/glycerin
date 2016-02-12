@@ -2,9 +2,8 @@ package com.metabroadcast.atlas.glycerin;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import com.metabroadcast.atlas.glycerin.model.Deprecated;
 import com.metabroadcast.atlas.glycerin.model.Feed;
 import com.metabroadcast.atlas.glycerin.model.Feeds;
 import com.metabroadcast.atlas.glycerin.queries.FeedsQuery;
@@ -13,6 +12,7 @@ import com.beust.jcommander.internal.Lists;
 import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import com.google.common.net.HostSpecifier;
+import com.google.common.util.concurrent.RateLimiter;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -23,27 +23,30 @@ public class GlycerinDeprecatedElementsTest {
 
     private GlycerinHttpClient glycerinClient;
     private HashMultimap<String, String> ignorableDeprecations;
+    private Optional<RateLimiter> limiter = Optional.absent();
+    private Optional<String> root = Optional.absent();
 
     @Test(groups = "integration")
     private void testProgrammeForDeprecatedFields() throws GlycerinException {
         GlycerinQuery<Feeds, Feed> query = new FeedsQuery();
         GlycerinResponse<Feed> response = glycerinClient.get(query);
         
-        List<String> deprecatedFields = response.getResults().stream().flatMap(feed -> {
+        List<String> deprecatedFields = Lists.newArrayList();
+
+        for (Feed feed : response.getResults()) {
             String feedName = feed.getName();
-            return feed.getDeprecations().getDeprecated().stream()
-                    .flatMap(deprecatedElement -> {
-                        if (!ignorableDeprecations.containsEntry(
-                                feedName, deprecatedElement.getName()
-                        )) {
-                            return Stream.of(
-                                    String.format("%s : %s", feedName, deprecatedElement.getName())
-                            );
-                        } else {
-                            return Stream.empty();
-                        }
-                    });
-        }).collect(Collectors.toList());
+            if (feed.getDeprecations() != null && feed.getDeprecations().getDeprecated() != null) {
+                for (Deprecated deprecated : feed.getDeprecations().getDeprecated()) {
+                    if (!ignorableDeprecations.containsEntry(feedName, deprecated.getName())) {
+                        deprecatedFields.add(String.format(
+                                "Feed - %s : deprecated element - %s",
+                                feedName,
+                                deprecated.getName()
+                        ));
+                    }
+                }
+            }
+        }
 
         if (!deprecatedFields.isEmpty()) {
             String fields = "Deprecated fields: \n";
@@ -60,8 +63,7 @@ public class GlycerinDeprecatedElementsTest {
         this.ignorableDeprecations = HashMultimap.create();
         addDeprecatedElementsToTheIgnorableMap();
 
-        glycerinClient = new GlycerinHttpClient(HostSpecifier.from(host), apiKey, null,
-                Optional.absent());
+        glycerinClient = new GlycerinHttpClient(HostSpecifier.from(host), apiKey, limiter, root);
     }
 
     private void addDeprecatedElementsToTheIgnorableMap() {
