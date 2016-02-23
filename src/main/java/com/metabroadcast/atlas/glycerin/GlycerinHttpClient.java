@@ -1,14 +1,9 @@
 package com.metabroadcast.atlas.glycerin;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpBackOffIOExceptionHandler;
@@ -24,12 +19,17 @@ import com.google.api.client.util.ExponentialBackOff;
 import com.google.common.base.Optional;
 import com.google.common.net.HostSpecifier;
 import com.google.common.util.concurrent.RateLimiter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 class GlycerinHttpClient {
 
     private static final String DEVELOPER_OVER_RATE_MSG = "Developer Over Rate";
     private static final String DEVELOPER_INACTIVE_MSG = "Developer Inactive";
     private static final NitroJaxbContext NITRO_JAXB_CONTEXT = new NitroJaxbContext();
+    public static final int READ_TIMEOUT = 60000;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     
@@ -104,7 +104,9 @@ class GlycerinHttpClient {
     }
 
     private <T, R> GlycerinResponse<T> doGet(GlycerinQuery<R, T> q) throws IOException {
-        HttpRequest getRequest = requestFactory.buildGetRequest(urlFor(q));
+        HttpRequest getRequest = requestFactory
+                .buildGetRequest(urlFor(q))
+                .setReadTimeout(READ_TIMEOUT);
         log.debug("{}", getRequest.getUrl());
         R parsedResponse = getRequest.execute().parseAs(q.type());
         List<T> results = q.transform(parsedResponse);
