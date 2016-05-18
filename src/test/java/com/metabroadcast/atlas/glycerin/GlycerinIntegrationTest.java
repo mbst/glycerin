@@ -11,12 +11,14 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Iterables;
 import com.google.common.net.HostSpecifier;
-import com.metabroadcast.atlas.glycerin.model.Episode;
+import com.metabroadcast.atlas.glycerin.model.MasterBrand;
 import com.metabroadcast.atlas.glycerin.model.Programme;
+import com.metabroadcast.atlas.glycerin.model.Service;
 import com.metabroadcast.atlas.glycerin.model.Version;
-import com.metabroadcast.atlas.glycerin.queries.GroupsMixin;
+import com.metabroadcast.atlas.glycerin.queries.MasterBrandsQuery;
 import com.metabroadcast.atlas.glycerin.queries.ProgrammesMixin;
 import com.metabroadcast.atlas.glycerin.queries.ProgrammesQuery;
+import com.metabroadcast.atlas.glycerin.queries.ServicesQuery;
 import com.metabroadcast.atlas.glycerin.queries.VersionsQuery;
 
 public class GlycerinIntegrationTest {
@@ -94,6 +96,21 @@ public class GlycerinIntegrationTest {
         Version version = Iterables.getOnlyElement(response.getResults());
         assertEquals("p0361000", version.getPid());
     }
+
+    @Test(groups = "integration")
+    public void testServiceResults() throws GlycerinException {
+        ServicesQuery servicesQuery = ServicesQuery.builder().build();
+        GlycerinResponse<Service> response = glycerin.execute(servicesQuery);
+        assertFalse(response.getResults().isEmpty());
+    }
+
+    @Test(groups = "integration")
+    public void testMasterbrandResults() throws GlycerinException {
+        MasterBrandsQuery servicesQuery = MasterBrandsQuery.builder().build();
+        GlycerinResponse<MasterBrand> response = glycerin.execute(servicesQuery);
+        assertFalse(response.getResults().isEmpty());
+    }
+
 
     @Test(groups = "integration")
     public void testProgrammesQueryWithGenres() throws GlycerinException {

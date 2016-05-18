@@ -5,11 +5,13 @@ import com.google.common.net.HostSpecifier;
 import com.google.common.util.concurrent.RateLimiter;
 import com.metabroadcast.atlas.glycerin.model.Availability;
 import com.metabroadcast.atlas.glycerin.model.Broadcast;
+import com.metabroadcast.atlas.glycerin.model.MasterBrand;
 import com.metabroadcast.atlas.glycerin.model.Programme;
 import com.metabroadcast.atlas.glycerin.model.Version;
 import com.metabroadcast.atlas.glycerin.model.Service;
 import com.metabroadcast.atlas.glycerin.queries.AvailabilityQuery;
 import com.metabroadcast.atlas.glycerin.queries.BroadcastsQuery;
+import com.metabroadcast.atlas.glycerin.queries.MasterBrandsQuery;
 import com.metabroadcast.atlas.glycerin.queries.ProgrammesQuery;
 import com.metabroadcast.atlas.glycerin.queries.ServicesQuery;
 import com.metabroadcast.atlas.glycerin.queries.VersionsQuery;
@@ -89,5 +91,10 @@ public class XmlGlycerin implements Glycerin {
     public GlycerinResponse<Version> execute(VersionsQuery query) throws GlycerinException {
         return executeQuery(query);
     }
-    
+
+    @Override
+    public GlycerinResponse<MasterBrand> execute(MasterBrandsQuery query) throws GlycerinException {
+        return executeQuery(query);
+    }
+
 }
