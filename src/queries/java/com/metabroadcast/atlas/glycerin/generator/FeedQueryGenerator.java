@@ -108,7 +108,9 @@ public class FeedQueryGenerator {
         JDefinedClass bldrCls = cls._class(JMod.PUBLIC|JMod.STATIC|JMod.FINAL, "Builder");
         JVar paramBuilder = bldrCls.field(JMod.PRIVATE|JMod.FINAL, immutableMapBldr, "params")
             .init(immutableMap.staticInvoke("builder"));
-        
+
+        addUnsafeUrlArg(bldrCls, paramBuilder);
+
         for (Filter filter : feed.getFilters().getFilter()) {
             if (!Boolean.TRUE.equals(filter.isDeprecated())) {
                 addWithersFor(filter, bldrCls, paramBuilder);
@@ -142,6 +144,20 @@ public class FeedQueryGenerator {
         
         //TODO: add sorts
         return bldrCls;
+    }
+
+    private void addUnsafeUrlArg(JDefinedClass bldrCls, JVar paramBuilder) {
+        JMethod method = bldrCls.method(JMod.PUBLIC, bldrCls, "withUnsafeArbitrary");
+        JVar nameParam = method.param(String.class, "name");
+        JVar valueParam = method.param(String.class, "value");
+
+        JBlock mthdBody = method.body();
+
+        JInvocation putIntoMap = paramBuilder.invoke("put")
+                .arg(nameParam)
+                .arg(precs.staticInvoke("checkNotNull").arg(valueParam));
+        mthdBody.add(putIntoMap);
+        mthdBody._return(JExpr._this());
     }
 
     private JDefinedClass getMixinEnum(Feed feed) throws JClassAlreadyExistsException {
