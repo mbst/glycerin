@@ -15,9 +15,11 @@ import com.metabroadcast.atlas.glycerin.model.MasterBrand;
 import com.metabroadcast.atlas.glycerin.model.Programme;
 import com.metabroadcast.atlas.glycerin.model.Service;
 import com.metabroadcast.atlas.glycerin.model.Version;
+import com.metabroadcast.atlas.glycerin.queries.MasterBrandsMixin;
 import com.metabroadcast.atlas.glycerin.queries.MasterBrandsQuery;
 import com.metabroadcast.atlas.glycerin.queries.ProgrammesMixin;
 import com.metabroadcast.atlas.glycerin.queries.ProgrammesQuery;
+import com.metabroadcast.atlas.glycerin.queries.ServiceTypeOption;
 import com.metabroadcast.atlas.glycerin.queries.ServicesQuery;
 import com.metabroadcast.atlas.glycerin.queries.VersionsQuery;
 
@@ -106,8 +108,18 @@ public class GlycerinIntegrationTest {
 
     @Test(groups = "integration")
     public void testMasterbrandResults() throws GlycerinException {
-        MasterBrandsQuery servicesQuery = MasterBrandsQuery.builder().build();
+        MasterBrandsQuery servicesQuery = MasterBrandsQuery.builder().withMixins(MasterBrandsMixin.IMAGES).build();
         GlycerinResponse<MasterBrand> response = glycerin.execute(servicesQuery);
+        assertFalse(response.getResults().isEmpty());
+    }
+
+    @Test(groups = "integration")
+    public void testServiceResultsWithServiceTypes() throws GlycerinException {
+        ServicesQuery servicesQuery = ServicesQuery.builder()
+                .withServiceType(ServiceTypeOption.LOCAL_RADIO,ServiceTypeOption.REGIONAL_RADIO,
+                        ServiceTypeOption.NATIONAL_RADIO, ServiceTypeOption.TV)
+                .build();
+        GlycerinResponse<Service> response = glycerin.execute(servicesQuery);
         assertFalse(response.getResults().isEmpty());
     }
 

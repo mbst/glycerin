@@ -120,7 +120,7 @@ public class FeedQueryGenerator {
             for (Mixin mixin : feed.getMixins().getMixin()) {
                 String mixinName = mixin.getName().toUpperCase().replace(' ', '_');
                 JEnumConstant mixinCnst = mixinEnum.enumConstant(mixinName);
-                mixinCnst.arg(JExpr.lit(mixin.getName().replace(' ', '+')));
+                mixinCnst.arg(JExpr.lit(mixin.getName()));
             }
             JFieldVar field = cls.field(privateStaticFinal, String.class, "MIXIN");
             field.init(JExpr.lit("mixin"));
@@ -342,7 +342,7 @@ public class FeedQueryGenerator {
         for (Option option : options) {
             String optionName = option.getValue().toUpperCase().replace(' ', '_');
             JEnumConstant optionCst = valueEnum.enumConstant(optionName);
-            optionCst.arg(JExpr.lit(option.getValue().replace(' ', '+')));
+            optionCst.arg(JExpr.lit(option.getValue()));
         }
         return valueEnum;
     }
