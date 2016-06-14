@@ -146,17 +146,24 @@ public class FeedQueryGenerator {
         return bldrCls;
     }
 
+    // TODO: MBST-15453.
+    /* This is a hack to work around us not supporting overloaded availability queries. Nitro
+    supports both enums and ISO8601 durations, we only support enums. Adding enums is hard, adding
+    this is simple.
+     */
     private void addUnsafeUrlArg(JDefinedClass bldrCls, JVar paramBuilder) {
         JMethod method = bldrCls.method(JMod.PUBLIC, bldrCls, "withUnsafeArbitrary");
         JVar nameParam = method.param(String.class, "name");
-        JVar valueParam = method.param(String.class, "value");
+        JVar valueParam = method.varParam(String.class, "values");
 
         JBlock mthdBody = method.body();
 
-        JInvocation putIntoMap = paramBuilder.invoke("put")
-                .arg(nameParam)
-                .arg(precs.staticInvoke("checkNotNull").arg(valueParam));
-        mthdBody.add(putIntoMap);
+        mthdBody.add(
+                paramBuilder.invoke("put")
+                        .arg(nameParam)
+                        .arg(immutableList.staticInvoke("copyOf").arg(valueParam))
+        );
+
         mthdBody._return(JExpr._this());
     }
 
