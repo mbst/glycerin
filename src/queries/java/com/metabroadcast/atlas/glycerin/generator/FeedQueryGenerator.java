@@ -39,12 +39,12 @@ import com.sun.codemodel.JVar;
 
 
 public class FeedQueryGenerator {
-
+    
     private static final int privateStaticFinal = JMod.PRIVATE|JMod.STATIC|JMod.FINAL;
     private static final String MODEL_PKG = "com.metabroadcast.atlas.glycerin.model.";
     private final JCodeModel model;
     private final JPackage pkg;
-
+    
     private final JClass parent;
     private final JClass precs;
     private final JClass immutableList;
@@ -80,27 +80,27 @@ public class FeedQueryGenerator {
             if (transformedType == null) {
                 return;
             }
-
+            
             JDefinedClass cls = pkg._class(JMod.PUBLIC|JMod.FINAL, String.format("%sQuery", feed.getName()));
             cls._extends(parent.narrow(transformedType));
-
+            
             if (feed.getTitle()!=null) {
                 cls.javadoc().add(String.format("<p>%s</p>",feed.getTitle()));
             }
-
+            
             addResourcePath(cls, feed);
             addResultTypeMethod(model, cls, transformedType);
             addConstructor(cls);
             JDefinedClass bldrCls = addBuilderCls(feed, cls);
-
+            
             cls.method(JMod.PUBLIC|JMod.STATIC|JMod.FINAL, bldrCls, "builder")
                 .body()._return(JExpr._new(bldrCls));
-
+            
             JMethod cpyMthd = cls.method(JMod.PROTECTED|JMod.FINAL, cls, "copy");
             JVar cpyParam = cpyMthd.param(immutableMap.narrow(String.class, Object.class), "params");
             cpyMthd.body()._return(JExpr._new(cls).arg(cpyParam));
-
-
+            
+            
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
@@ -301,10 +301,10 @@ public class FeedQueryGenerator {
 
     private void addWithersFor(Filter filter, JDefinedClass bldrCls, JVar paramBuilder) throws ClassNotFoundException, JClassAlreadyExistsException {
         JDefinedClass cls = (JDefinedClass) bldrCls.parentContainer();
-
+        
         JFieldVar field = cls.field(privateStaticFinal, String.class, sanitize(filter.getName().toUpperCase()));
         field.init(JExpr.lit(filter.getName()));
-
+        
         JClass paramType = mapType(filter);
         if (Boolean.TRUE.equals(filter.isMultipleValues())) {
             JMethod iterableWither = addIterableWither(filter, bldrCls, paramBuilder, field, paramType);
@@ -391,11 +391,11 @@ public class FeedQueryGenerator {
         String filterMethodName = "with" + camel(sanitize(filter.getName()), true);
         return bldrCls.method(JMod.PUBLIC, bldrCls, filterMethodName);
     }
-
+    
     private JType iterable(JClass mapType) {
         return model.directClass("Iterable").narrow(mapType);
     }
-
+            
     private JClass mapType(Filter filter) throws JClassAlreadyExistsException {
         if (!(filter.getOption() == null || filter.getOption().isEmpty())){
             return getParamTypeEnum(filter);
@@ -422,19 +422,19 @@ public class FeedQueryGenerator {
                 return model.ref(Boolean.class);
             }
         }
-
-
+        
+        
         JDefinedClass valueEnum = pkg._enum(enumName);
-
+        
         JFieldVar valField = valueEnum.field(JMod.PRIVATE|JMod.FINAL, String.class, "value");
         JMethod ctor = valueEnum.constructor(JMod.PRIVATE);
         JVar param = ctor.param(String.class, "val");
         ctor.body().assign(valField, param);
-
+        
         JMethod toString = valueEnum.method(JMod.PUBLIC, String.class, "toString");
         toString.annotate(Override.class);
         toString.body()._return(valField);
-
+        
         for (Option option : options) {
             String optionName = option.getValue().toUpperCase().replace(' ', '_');
             JEnumConstant optionCst = valueEnum.enumConstant(optionName);
@@ -447,7 +447,7 @@ public class FeedQueryGenerator {
         char initial = name.charAt(0);
         StringBuilder converted = new StringBuilder()
             .append(upperInitial ? Character.toUpperCase(initial) : initial);
-
+        
         for (int i = 1; i < name.length(); i++) {
             char chr = name.charAt(i);
             if (chr == '_' && i+1 < name.length()) {
@@ -469,7 +469,7 @@ public class FeedQueryGenerator {
     private void addResourcePath(JDefinedClass cls, Feed feed) {
         JFieldVar field = cls.field(privateStaticFinal, String.class, "RESOURCE_PATH");
         field.init(JExpr.lit(feed.getHref()));
-
+        
         JMethod method = cls.method(JMod.PROTECTED|JMod.FINAL, String.class, "resourcePath");
         method.annotate(Override.class);
         method.body()._return(field);

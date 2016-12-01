@@ -43,13 +43,13 @@ public class GlycerinIntegrationTest {
                 .withHost(HostSpecifier.fromValid(host))
                 .build();
     }
-
+    
     @Test(groups = "integration")
     public void testGetsAProgramme() throws GlycerinException {
         ProgrammesQuery query = ProgrammesQuery.builder()
                 .withPid("b006m86d").build();
         GlycerinResponse<Programme> response = glycerin.execute(query);
-
+        
         Programme eastEnders = Iterables.getOnlyElement(response.getResults());
         assertTrue(eastEnders.isBrand());
     }
@@ -59,7 +59,7 @@ public class GlycerinIntegrationTest {
         ProgrammesQuery query = ProgrammesQuery.builder()
                 .withPid("b006m86d").build();
         GlycerinResponse<Programme> response = glycerin.execute(query);
-
+        
         assertFalse(response.hasNext());
     }
 
@@ -70,7 +70,7 @@ public class GlycerinIntegrationTest {
                 .withPageSize(1)
                 .build();
         GlycerinResponse<Programme> response = glycerin.execute(query);
-
+        
         assertTrue(response.hasNext());
     }
 
@@ -81,9 +81,9 @@ public class GlycerinIntegrationTest {
                 .withPageSize(1)
                 .build();
         GlycerinResponse<Programme> response = glycerin.execute(query);
-
+        
         response = response.getNext();
-
+        
         assertFalse(response.getResults().isEmpty());
     }
 
@@ -94,9 +94,9 @@ public class GlycerinIntegrationTest {
                 .withPageSize(1)
                 .build();
         GlycerinResponse<Programme> response = glycerin.execute(query);
-
+        
         response = response.getNext();
-
+        
         assertFalse(response.getResults().isEmpty());
     }
 
