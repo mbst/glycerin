@@ -6,17 +6,31 @@ import static org.junit.Assert.assertTrue;
 
 
 import com.google.common.collect.Ordering;
-import com.metabroadcast.atlas.glycerin.model.*;
-import com.metabroadcast.atlas.glycerin.queries.*;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Iterables;
 import com.google.common.net.HostSpecifier;
+import com.metabroadcast.atlas.glycerin.model.MasterBrand;
+import com.metabroadcast.atlas.glycerin.model.Programme;
+import com.metabroadcast.atlas.glycerin.model.Service;
+import com.metabroadcast.atlas.glycerin.model.Version;
+import com.metabroadcast.atlas.glycerin.model.AvailableVersions;
+import com.metabroadcast.atlas.glycerin.queries.MasterBrandsMixin;
+import com.metabroadcast.atlas.glycerin.queries.MasterBrandsQuery;
+import com.metabroadcast.atlas.glycerin.queries.ProgrammesMixin;
+import com.metabroadcast.atlas.glycerin.queries.ProgrammesQuery;
+import com.metabroadcast.atlas.glycerin.queries.ServiceTypeOption;
+import com.metabroadcast.atlas.glycerin.queries.ServicesQuery;
+import com.metabroadcast.atlas.glycerin.queries.VersionsQuery;
+import com.metabroadcast.atlas.glycerin.queries.ProgrammesSort;
+import com.metabroadcast.atlas.glycerin.queries.ProgrammesSortDirection;
+import com.metabroadcast.atlas.glycerin.queries.AvailabilityOption;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class GlycerinIntegrationTest {
 
@@ -118,6 +132,7 @@ public class GlycerinIntegrationTest {
         assertFalse(response.getResults().isEmpty());
     }
 
+
     @Test(groups = "integration")
     public void testProgrammesQueryWithGenres() throws GlycerinException {
         ProgrammesQuery programmesQuery = ProgrammesQuery.builder().withPid("b039gr8y").withMixins(
@@ -188,10 +203,14 @@ public class GlycerinIntegrationTest {
 
         List<Long> startSchedules = new ArrayList<>();
         for (Programme programme : response.getResults()) {
-            if (programme.isSeries() || programme.isClip()) continue;
+            if (programme.isSeries() || programme.isClip())  {
+                continue;
+            }
             AvailableVersions availableVersions = programme.getAsEpisode().getAvailableVersions();
             Long scheduledStartTime = obtainScheduledStartTime(availableVersions);
-            if (scheduledStartTime == null) continue;
+            if (scheduledStartTime == null) {
+                continue;
+            }
             startSchedules.add(scheduledStartTime);
         }
         assertTrue(Ordering.natural().reverse().isOrdered(startSchedules));

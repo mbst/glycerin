@@ -6,14 +6,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.metabroadcast.atlas.glycerin.model.*;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
+import com.metabroadcast.atlas.glycerin.model.Feed;
+import com.metabroadcast.atlas.glycerin.model.Filter;
+import com.metabroadcast.atlas.glycerin.model.GroupBody;
+import com.metabroadcast.atlas.glycerin.model.Mixin;
+import com.metabroadcast.atlas.glycerin.model.Option;
+import com.metabroadcast.atlas.glycerin.model.Sort;
+import com.metabroadcast.atlas.glycerin.model.SortDirection;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.metabroadcast.atlas.glycerin.model.Version;
 import com.metabroadcast.atlas.glycerin.queries.BaseApiQuery;
 import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JClass;
@@ -33,7 +40,7 @@ import com.sun.codemodel.JVar;
 
 public class FeedQueryGenerator {
 
-    private static final int privateStaticFinal = JMod.PRIVATE | JMod.STATIC | JMod.FINAL;
+    private static final int privateStaticFinal = JMod.PRIVATE|JMod.STATIC|JMod.FINAL;
     private static final String MODEL_PKG = "com.metabroadcast.atlas.glycerin.model.";
     private final JCodeModel model;
     private final JPackage pkg;
@@ -45,15 +52,15 @@ public class FeedQueryGenerator {
     private final JClass immutableMapBldr;
 
     private static final ImmutableMap<String, Class<?>> typeMap = ImmutableMap.<String, Class<?>>builder()
-            .put("integer", Integer.class)
-            .put("datetime", DateTime.class)
-            .put("string", String.class)
-            .put("ID", String.class)
-            .put("PID", String.class)
-            .put("character", Character.class)
-            .put("boolean", Boolean.class)
-            .put("date", LocalDate.class)
-            .build();
+        .put("integer", Integer.class)
+        .put("datetime", DateTime.class)
+        .put("string", String.class)
+        .put("ID", String.class)
+        .put("PID", String.class)
+        .put("character", Character.class)
+        .put("boolean", Boolean.class)
+        .put("date", LocalDate.class)
+        .build();
 
 
     public FeedQueryGenerator(JCodeModel model, JPackage pkg) {
@@ -74,11 +81,11 @@ public class FeedQueryGenerator {
                 return;
             }
 
-            JDefinedClass cls = pkg._class(JMod.PUBLIC | JMod.FINAL, String.format("%sQuery", feed.getName()));
+            JDefinedClass cls = pkg._class(JMod.PUBLIC|JMod.FINAL, String.format("%sQuery", feed.getName()));
             cls._extends(parent.narrow(transformedType));
 
-            if (feed.getTitle() != null) {
-                cls.javadoc().add(String.format("<p>%s</p>", feed.getTitle()));
+            if (feed.getTitle()!=null) {
+                cls.javadoc().add(String.format("<p>%s</p>",feed.getTitle()));
             }
 
             addResourcePath(cls, feed);
@@ -86,10 +93,10 @@ public class FeedQueryGenerator {
             addConstructor(cls);
             JDefinedClass bldrCls = addBuilderCls(feed, cls);
 
-            cls.method(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, bldrCls, "builder")
-                    .body()._return(JExpr._new(bldrCls));
+            cls.method(JMod.PUBLIC|JMod.STATIC|JMod.FINAL, bldrCls, "builder")
+                .body()._return(JExpr._new(bldrCls));
 
-            JMethod cpyMthd = cls.method(JMod.PROTECTED | JMod.FINAL, cls, "copy");
+            JMethod cpyMthd = cls.method(JMod.PROTECTED|JMod.FINAL, cls, "copy");
             JVar cpyParam = cpyMthd.param(immutableMap.narrow(String.class, Object.class), "params");
             cpyMthd.body()._return(JExpr._new(cls).arg(cpyParam));
 
@@ -101,10 +108,9 @@ public class FeedQueryGenerator {
 
     private JDefinedClass addBuilderCls(Feed feed, JDefinedClass cls)
             throws JClassAlreadyExistsException, ClassNotFoundException {
-
-        JDefinedClass bldrCls = cls._class(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, "Builder");
-        JVar paramBuilder = bldrCls.field(JMod.PRIVATE | JMod.FINAL, immutableMapBldr, "params")
-                .init(immutableMap.staticInvoke("builder"));
+        JDefinedClass bldrCls = cls._class(JMod.PUBLIC|JMod.STATIC|JMod.FINAL, "Builder");
+        JVar paramBuilder = bldrCls.field(JMod.PRIVATE|JMod.FINAL, immutableMapBldr, "params")
+            .init(immutableMap.staticInvoke("builder"));
 
         addUnsafeUrlArg(bldrCls, paramBuilder);
 
@@ -256,24 +262,24 @@ public class FeedQueryGenerator {
         JMethod constructor = cls.constructor(JMod.PRIVATE);
         constructor.param(stringObjectMap(model), "params");
         constructor.body().invoke("super")
-                .arg(constructor.listParams()[0]);
+            .arg(constructor.listParams()[0]);
         return constructor;
     }
 
     private JClass getTransformedType(Feed feed) {
         Class<?> cls = null;
         String name = feed.getName();
-        if (name.equals("Versions")) {
+        if(name.equals("Versions")) {
             cls = Version.class;
             return model.ref(cls);
         }
-        if (name.equals("Groups")) {
+        if(name.equals("Groups")) {
             cls = GroupBody.class;
             return model.ref(cls);
         }
         cls = tryLoadClass(MODEL_PKG + name);
         if (cls == null) {//attempt in possible naive singular.
-            cls = tryLoadClass(MODEL_PKG + name.substring(0, name.length() - 1));
+            cls = tryLoadClass(MODEL_PKG + name.substring(0, name.length()-1));
         }
         if (cls == null) {
             cls = Object.class;
@@ -315,8 +321,8 @@ public class FeedQueryGenerator {
     private void addVarArgsWither(Filter filter, JMethod wither, JDefinedClass bldrCls, JClass paramType) throws JClassAlreadyExistsException {
         JMethod method = bldrCls.method(wither.mods().getValue(),
                 wither.type(), wither.name());
-        if (filter.getTitle() != null) {
-            method.javadoc().add(String.format("<p>%s</p>", filter.getTitle()));
+        if (filter.getTitle()!=null) {
+            method.javadoc().add(String.format("<p>%s</p>",filter.getTitle()));
         }
         JVar param = method.varParam(paramType, wither.listParams()[0].name());
         method.body()._return(JExpr.invoke(wither).arg(immutableList.staticInvoke("copyOf").arg(param)));
@@ -324,8 +330,8 @@ public class FeedQueryGenerator {
 
     private void addWither(Filter filter, JDefinedClass bldrCls, JVar paramBuilder, JFieldVar field, JClass paramType) throws JClassAlreadyExistsException {
         JMethod method = createWitherMethod(filter, bldrCls);
-        if (filter.getTitle() != null) {
-            method.javadoc().add(String.format("<p>%s</p>", filter.getTitle()));
+        if (filter.getTitle()!=null) {
+            method.javadoc().add(String.format("<p>%s</p>",filter.getTitle()));
         }
         JVar param = addParam(filter, method, paramType);
         JBlock mthdBody = method.body();
@@ -335,9 +341,9 @@ public class FeedQueryGenerator {
             needsNullCheck = false;
             int min = filter.getMinValue().intValue();
             mthdBody.add(precs.staticInvoke("checkArgument")
-                    .arg(JExpr.lit(min).lte(param))
-                    .arg(JExpr.lit(param.name() + ": %s < " + min))
-                    .arg(param)
+                .arg(JExpr.lit(min).lte(param))
+                .arg(JExpr.lit(param.name() + ": %s < " + min))
+                .arg(param)
             );
         }
         if (filter.getMaxValue() != null) {
@@ -347,9 +353,9 @@ public class FeedQueryGenerator {
             }
             int max = filter.getMaxValue().intValue();
             mthdBody.add(precs.staticInvoke("checkArgument")
-                    .arg(JExpr.lit(max).gte(param))
-                    .arg(JExpr.lit(param.name() + ": %s > " + max))
-                    .arg(param)
+                .arg(JExpr.lit(max).gte(param))
+                .arg(JExpr.lit(param.name() + ": %s > " + max))
+                .arg(param)
             );
         }
         JInvocation putIntoMap = paramBuilder.invoke("put")
@@ -365,8 +371,8 @@ public class FeedQueryGenerator {
 
     private JMethod addIterableWither(Filter filter, JDefinedClass bldrCls, JVar paramBuilder, JFieldVar field, JClass paramType) throws JClassAlreadyExistsException {
         JMethod method = createWitherMethod(filter, bldrCls);
-        if (filter.getTitle() != null) {
-            method.javadoc().add(String.format("<p>%s</p>", filter.getTitle()));
+        if (filter.getTitle()!=null) {
+            method.javadoc().add(String.format("<p>%s</p>",filter.getTitle()));
         }
         JVar param = addParam(filter, method, iterable(paramType));
         JBlock mthdBody = method.body();
@@ -391,7 +397,7 @@ public class FeedQueryGenerator {
     }
 
     private JClass mapType(Filter filter) throws JClassAlreadyExistsException {
-        if (!(filter.getOption() == null || filter.getOption().isEmpty())) {
+        if (!(filter.getOption() == null || filter.getOption().isEmpty())){
             return getParamTypeEnum(filter);
         }
         String type = filter.getType();
@@ -408,11 +414,11 @@ public class FeedQueryGenerator {
         List<Option> options = filter.getOption();
         if (options.size() == 1) {/*turn into '*Only' method?*/}
         if (options.size() == 2) {
-            if (ImmutableSet.of("true", "false").equals(
+            if (ImmutableSet.of("true","false").equals(
                     ImmutableSet.of(options.get(0).getValue().toLowerCase(),
-                            options.get(1).getValue().toLowerCase()
+                        options.get(1).getValue().toLowerCase()
                     )
-            )) {
+                )) {
                 return model.ref(Boolean.class);
             }
         }
@@ -420,7 +426,7 @@ public class FeedQueryGenerator {
 
         JDefinedClass valueEnum = pkg._enum(enumName);
 
-        JFieldVar valField = valueEnum.field(JMod.PRIVATE | JMod.FINAL, String.class, "value");
+        JFieldVar valField = valueEnum.field(JMod.PRIVATE|JMod.FINAL, String.class, "value");
         JMethod ctor = valueEnum.constructor(JMod.PRIVATE);
         JVar param = ctor.param(String.class, "val");
         ctor.body().assign(valField, param);
@@ -440,11 +446,11 @@ public class FeedQueryGenerator {
     private String camel(String name, boolean upperInitial) {
         char initial = name.charAt(0);
         StringBuilder converted = new StringBuilder()
-                .append(upperInitial ? Character.toUpperCase(initial) : initial);
+            .append(upperInitial ? Character.toUpperCase(initial) : initial);
 
         for (int i = 1; i < name.length(); i++) {
             char chr = name.charAt(i);
-            if (chr == '_' && i + 1 < name.length()) {
+            if (chr == '_' && i+1 < name.length()) {
                 converted.append(Character.toUpperCase(name.charAt(++i)));
             } else {
                 converted.append(chr);
@@ -455,7 +461,7 @@ public class FeedQueryGenerator {
 
     private void addResultTypeMethod(JCodeModel model, JDefinedClass cls, JClass transformedType) {
         JClass classCls = model.ref(Class.class);
-        JMethod method = cls.method(JMod.PROTECTED | JMod.FINAL, classCls.narrow(transformedType), "resultsType");
+        JMethod method = cls.method(JMod.PROTECTED|JMod.FINAL, classCls.narrow(transformedType), "resultsType");
         method.body()._return(JExpr.dotclass(transformedType));
         method.annotate(Override.class);
     }
@@ -464,7 +470,7 @@ public class FeedQueryGenerator {
         JFieldVar field = cls.field(privateStaticFinal, String.class, "RESOURCE_PATH");
         field.init(JExpr.lit(feed.getHref()));
 
-        JMethod method = cls.method(JMod.PROTECTED | JMod.FINAL, String.class, "resourcePath");
+        JMethod method = cls.method(JMod.PROTECTED|JMod.FINAL, String.class, "resourcePath");
         method.annotate(Override.class);
         method.body()._return(field);
     }
