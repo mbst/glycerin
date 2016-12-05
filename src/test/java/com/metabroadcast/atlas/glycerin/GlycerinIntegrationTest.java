@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
+import com.google.common.collect.Ordering;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -15,6 +16,7 @@ import com.metabroadcast.atlas.glycerin.model.MasterBrand;
 import com.metabroadcast.atlas.glycerin.model.Programme;
 import com.metabroadcast.atlas.glycerin.model.Service;
 import com.metabroadcast.atlas.glycerin.model.Version;
+import com.metabroadcast.atlas.glycerin.model.AvailableVersions;
 import com.metabroadcast.atlas.glycerin.queries.MasterBrandsMixin;
 import com.metabroadcast.atlas.glycerin.queries.MasterBrandsQuery;
 import com.metabroadcast.atlas.glycerin.queries.ProgrammesMixin;
@@ -22,6 +24,13 @@ import com.metabroadcast.atlas.glycerin.queries.ProgrammesQuery;
 import com.metabroadcast.atlas.glycerin.queries.ServiceTypeOption;
 import com.metabroadcast.atlas.glycerin.queries.ServicesQuery;
 import com.metabroadcast.atlas.glycerin.queries.VersionsQuery;
+import com.metabroadcast.atlas.glycerin.queries.ProgrammesSort;
+import com.metabroadcast.atlas.glycerin.queries.ProgrammesSortDirection;
+import com.metabroadcast.atlas.glycerin.queries.AvailabilityOption;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class GlycerinIntegrationTest {
 
@@ -166,4 +175,75 @@ public class GlycerinIntegrationTest {
         assertEquals("Sue", value);
     }
 
+    @Test(groups = "integration")
+    public void testProgrammesQueryWithTitleAscendingSorting() throws GlycerinException {
+        ProgrammesQuery query = ProgrammesQuery.builder()
+                .withDescendantsOf("b039gr8y").
+                        sortBy(ProgrammesSort.TITLE, ProgrammesSortDirection.ASCENDING).
+                        build();
+        GlycerinResponse<Programme> response = glycerin.execute(query);
+
+        List<String> programsTitles = new ArrayList<>();
+        for (Programme programme : response.getResults()) {
+            programsTitles.add(programme.getAsClip().getTitle());
+        }
+        assertTrue(Ordering.natural().isOrdered(programsTitles));
+    }
+
+    @Test(groups = "integration")
+    public void testProgrammesQueryWithScheduleDescendingSorting() throws GlycerinException {
+        ProgrammesQuery query = ProgrammesQuery.builder()
+                .withDescendantsOf("b007t575").
+                        withAvailability(AvailabilityOption.AVAILABLE).
+                        withMixins(ProgrammesMixin.AVAILABLE_VERSIONS).
+                        withPageSize(25).
+                        sortBy(ProgrammesSort.SCHEDULED_START, ProgrammesSortDirection.DESCENDING).
+                        build();
+        GlycerinResponse<Programme> response = glycerin.execute(query);
+
+        List<Long> startSchedules = new ArrayList<>();
+        for (Programme programme : response.getResults()) {
+            if (programme.isSeries() || programme.isClip())  {
+                continue;
+            }
+            AvailableVersions availableVersions = programme.getAsEpisode().getAvailableVersions();
+            Long scheduledStartTime = obtainScheduledStartTime(availableVersions);
+            if (scheduledStartTime == null) {
+                continue;
+            }
+            startSchedules.add(scheduledStartTime);
+        }
+        assertTrue(Ordering.natural().reverse().isOrdered(startSchedules));
+    }
+
+    @Test(groups = "integration")
+    public void testProgrammesQueryWithPidDefaultDescendingSorting() throws GlycerinException {
+        ProgrammesQuery query = ProgrammesQuery.builder()
+                .withDescendantsOf("b007t575").
+                        sortBy(ProgrammesSort.PID).
+                        build();
+        GlycerinResponse<Programme> response = glycerin.execute(query);
+
+        List<String> programmePids = new ArrayList<>();
+        for (Programme programme : response.getResults()) {
+            if (programme.isEpisode()) {
+                programmePids.add(programme.getAsEpisode().getPid());
+            } else if (programme.isSeries()) {
+                programmePids.add(programme.getAsSeries().getPid());
+            } else if (programme.isClip()) {
+                programmePids.add(programme.getAsClip().getPid());
+            }
+            assertTrue(Ordering.natural().reverse().isOrdered(programmePids));
+        }
+    }
+
+    private Long obtainScheduledStartTime(AvailableVersions availableVersions) {
+        try {
+            AvailableVersions.Version version = availableVersions.getVersion().get(0);
+            AvailableVersions.Version.Availabilities availability = version.getAvailabilities().get(0);
+            return availability.getAvailableVersionsAvailability().get(0).getScheduledStart().toGregorianCalendar().getTimeInMillis();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

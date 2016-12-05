@@ -6,24 +6,59 @@ A Java HTTP client for Nitro
 Usage
 -----
 
-1. Add a maven dependency:
-```xml
+## Add a maven dependency:
+```
        <dependency>
           <groupId>com.metabroadcast.atlas.glycerin</groupId>
           <artifactId>glycerin</artifactId>
-          <version>0.1.11</version>
+          <version>2.1.4</version>
       </dependency>
-      ```
+ ```
 You'll need the MetaBroadcast repository: `http://mvn.metabroadcast.com/all`
 
-1. Create a Glycerin instance: 
+```
+ <repositories>   
+        <repository>
+            <id>Nitro</id>
+            <url>http://mvn.metabroadcast.com/all</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+</repositories>
+ ```
+
+
+## Create a Glycerin instance: 
 ```java
-Glycerin glycerin = XmlGlycerin.builder(apiKey);
+Glycerin glycerin = XmlGlycerin.builder(apiKey).build();
+
+//with specified host
+Glycerin glycerin = XmlGlycerin.builder(apiKey)
+                .withHost(HostSpecifier.fromValid(host))
+                .build();
+
 ```
 
-1. Execute a query: 
+## Execute a query: 
 ```java
 GlycerinResponse<Broadcast> broadcasts = glycerin.execute(BroadcastQuery.builder() .withDescendantsOf("b039gr8y").build());
+```
+
+### ProgrammesQuery
+```java
+
+//find all programs available
+GlycerinResponse<Programme> programmes = glycerin.execute(ProgrammesQuery.builder().
+                                         withDescendantsOf(pid).
+                                         withAvailability(AvailabilityOption.AVAILABLE).build());
+                                         
+//sort all available programs by scheduled start descending
+GlycerinResponse<Programme> programmes = glycerin.execute(ProgrammesQuery.builder().
+                                         withDescendantsOf(pid).
+                                         withAvailability(AvailabilityOption.AVAILABLE).
+                                         sortBy(ProgrammesSort.SCHEDULED_START, ProgrammesSortDirection.DESCENDING).build());
+                                         
 ```
 
 Compiling

@@ -2,6 +2,7 @@ package com.metabroadcast.atlas.glycerin.generator;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,8 @@ import com.metabroadcast.atlas.glycerin.model.Filter;
 import com.metabroadcast.atlas.glycerin.model.GroupBody;
 import com.metabroadcast.atlas.glycerin.model.Mixin;
 import com.metabroadcast.atlas.glycerin.model.Option;
+import com.metabroadcast.atlas.glycerin.model.Sort;
+import com.metabroadcast.atlas.glycerin.model.SortDirection;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -98,9 +101,9 @@ public class FeedQueryGenerator {
             cpyMthd.body()._return(JExpr._new(cls).arg(cpyParam));
             
             
-        } catch (Exception e) { 
+        } catch (Exception e) {
             throw new IllegalStateException(e);
-        }        
+        }
     }
 
     private JDefinedClass addBuilderCls(Feed feed, JDefinedClass cls)
@@ -111,19 +114,36 @@ public class FeedQueryGenerator {
 
         addUnsafeUrlArg(bldrCls, paramBuilder);
 
+        addFilters(feed, bldrCls, paramBuilder);
+
+        addMixins(feed, cls, bldrCls, paramBuilder);
+
+        addSorts(feed, cls, bldrCls, paramBuilder);
+
+        JMethod bldMthd = bldrCls.method(JMod.PUBLIC, cls, "build");
+        bldMthd.body()._return(JExpr._new(cls).arg(paramBuilder.invoke("build")));
+
+        return bldrCls;
+    }
+
+    private void addFilters(Feed feed, JDefinedClass bldrCls, JVar paramBuilder) throws ClassNotFoundException, JClassAlreadyExistsException {
         for (Filter filter : feed.getFilters().getFilter()) {
             if (!Boolean.TRUE.equals(filter.isDeprecated())) {
                 addWithersFor(filter, bldrCls, paramBuilder);
             }
         }
-        
+    }
+
+    private void addMixins(Feed feed, JDefinedClass cls, JDefinedClass bldrCls, JVar paramBuilder) throws JClassAlreadyExistsException {
         if (feed.getMixins() != null && feed.getMixins().getMixin() != null) {
-            JDefinedClass mixinEnum = getMixinEnum(feed);
+
+            List<String> mixinValues = new ArrayList<>();
             for (Mixin mixin : feed.getMixins().getMixin()) {
-                String mixinName = mixin.getName().toUpperCase().replace(' ', '_');
-                JEnumConstant mixinCnst = mixinEnum.enumConstant(mixinName);
-                mixinCnst.arg(JExpr.lit(mixin.getName()));
+                mixinValues.add(mixin.getName());
             }
+            String mixinEnumName = camel(feed.getName(), true) + "Mixin";
+            JDefinedClass mixinEnum = buildEnumClass(mixinEnumName, mixinValues);
+
             JFieldVar field = cls.field(privateStaticFinal, String.class, "MIXIN");
             field.init(JExpr.lit("mixin"));
             JMethod iterWither = bldrCls.method(JMod.PUBLIC, bldrCls, "withMixins");
@@ -138,12 +158,61 @@ public class FeedQueryGenerator {
             varArgWither.body()._return(JExpr.invoke(iterWither)
                     .arg(immutableList.staticInvoke("copyOf").arg(param)));
         }
-        
-        JMethod bldMthd = bldrCls.method(JMod.PUBLIC, cls, "build");
-        bldMthd.body()._return(JExpr._new(cls).arg(paramBuilder.invoke("build")));
-        
-        //TODO: add sorts
-        return bldrCls;
+    }
+
+    private void addSorts(Feed feed, JDefinedClass cls, JDefinedClass bldrCls, JVar paramBuilder) throws JClassAlreadyExistsException {
+
+        if (feed.getSorts() == null || feed.getSorts().getSort() == null) {
+            return;
+        }
+
+        List<String> sortEnumValues = new ArrayList<>();
+        List<String> sortDirectionValues = new ArrayList<>();
+        for (Sort sort : feed.getSorts().getSort()) {
+            sortEnumValues.add(sort.getName());
+            if (sort.getSortDirection() != null) {
+                for (SortDirection sortDirection : sort.getSortDirection()) {
+                    if (!sortDirectionValues.contains(sortDirection.getValue())) {
+                        sortDirectionValues.add(sortDirection.getValue());
+                    }
+                }
+            }
+        }
+        String sortEnumName = camel(feed.getName(), true) + "Sort";
+        JDefinedClass sortEnum = buildEnumClass(sortEnumName, sortEnumValues);
+        JFieldVar sortField = cls.field(privateStaticFinal, String.class, "SORT");
+        sortField.init(JExpr.lit("sort"));
+
+        JMethod sortBy = bldrCls.method(JMod.PUBLIC, bldrCls, "sortBy");
+        JVar sortParam = sortBy.param(sortEnum, "sortField");
+        JBlock mthdBody = sortBy.body();
+        mthdBody.add(paramBuilder.invoke("put")
+                .arg(sortField)
+                .arg(precs.staticInvoke("checkNotNull").arg(sortParam)));
+        mthdBody._return(JExpr._this());
+
+        //add sort by with direction
+        JDefinedClass sortDirectionEnum = null;
+
+        if (sortDirectionValues.size() > 0) {
+            String sortDirectionEnumName = camel(feed.getName(), true) + "SortDirection";
+            sortDirectionEnum = buildEnumClass(sortDirectionEnumName, sortDirectionValues);
+            JFieldVar sortDirectionField = cls.field(privateStaticFinal, String.class, "SORT_DIRECTION");
+            sortDirectionField.init(JExpr.lit("sort_direction"));
+
+            JMethod sortByWithDirection = bldrCls.method(JMod.PUBLIC, bldrCls, "sortBy");
+            sortParam = sortByWithDirection.param(sortEnum, "sortField");
+            JVar sortDirectionParam = sortByWithDirection.param(sortDirectionEnum, "sortDirection");
+            mthdBody = sortByWithDirection.body();
+            mthdBody.add(paramBuilder.invoke("put")
+                    .arg(sortField)
+                    .arg(precs.staticInvoke("checkNotNull").arg(sortParam)));
+            mthdBody.add(paramBuilder.invoke("put")
+                    .arg(sortDirectionField)
+                    .arg(precs.staticInvoke("checkNotNull").arg(sortDirectionParam)));
+
+            mthdBody._return(JExpr._this());
+        }
     }
 
     // TODO: MBST-15453.
@@ -167,21 +236,25 @@ public class FeedQueryGenerator {
         mthdBody._return(JExpr._this());
     }
 
-    private JDefinedClass getMixinEnum(Feed feed) throws JClassAlreadyExistsException {
-        String enumName = camel(feed.getName(), true) + "Mixin";
+    private JDefinedClass buildEnumClass(String enumName, List<String> values) throws JClassAlreadyExistsException {
         if (pkg.isDefined(enumName)) {
             return pkg._getClass(enumName);
         }
         JDefinedClass valueEnum = pkg._enum(enumName);
-        
-        JFieldVar valField = valueEnum.field(JMod.PRIVATE|JMod.FINAL, String.class, "value");
+
+        JFieldVar valField = valueEnum.field(JMod.PRIVATE | JMod.FINAL, String.class, "value");
         JMethod ctor = valueEnum.constructor(JMod.PRIVATE);
         JVar param = ctor.param(String.class, "val");
         ctor.body().assign(valField, param);
-        
+
         JMethod toString = valueEnum.method(JMod.PUBLIC, String.class, "toString");
         toString.annotate(Override.class);
         toString.body()._return(valField);
+
+        for (String value : values) {
+            JEnumConstant sortCnst = valueEnum.enumConstant(value.toUpperCase().replace(' ', '_'));
+            sortCnst.arg(JExpr.lit(value));
+        }
         return valueEnum;
     }
 
@@ -246,7 +319,7 @@ public class FeedQueryGenerator {
     }
 
     private void addVarArgsWither(Filter filter, JMethod wither, JDefinedClass bldrCls, JClass paramType) throws JClassAlreadyExistsException {
-        JMethod method = bldrCls.method(wither.mods().getValue(), 
+        JMethod method = bldrCls.method(wither.mods().getValue(),
                 wither.type(), wither.name());
         if (filter.getTitle()!=null) {
             method.javadoc().add(String.format("<p>%s</p>",filter.getTitle()));
@@ -283,7 +356,7 @@ public class FeedQueryGenerator {
                 .arg(JExpr.lit(max).gte(param))
                 .arg(JExpr.lit(param.name() + ": %s > " + max))
                 .arg(param)
-            ); 
+            );
         }
         JInvocation putIntoMap = paramBuilder.invoke("put")
                 .arg(field);
@@ -315,7 +388,7 @@ public class FeedQueryGenerator {
     }
 
     private JMethod createWitherMethod(Filter filter, JDefinedClass bldrCls) {
-        String filterMethodName = "with" + camel(sanitize(filter.getName()), true); 
+        String filterMethodName = "with" + camel(sanitize(filter.getName()), true);
         return bldrCls.method(JMod.PUBLIC, bldrCls, filterMethodName);
     }
     
