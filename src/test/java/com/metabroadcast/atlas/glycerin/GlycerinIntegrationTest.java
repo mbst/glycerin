@@ -242,7 +242,9 @@ public class GlycerinIntegrationTest {
             for( AvailableVersions.Version av: availableVersions.getVersion()){
                 for (AvailableVersions.Version.Availabilities aa: av.getAvailabilities())   {
                     for(AvailableVersions.Version.Availabilities.Availability a: aa.getAvailableVersionsAvailability()) {
-                        if ("future".equals(a.getStatus())) continue;
+                        if ("future".equals(a.getStatus())) {
+                            continue;
+                        }
                         return a.getScheduledStart().toGregorianCalendar().getTimeInMillis();
                     }
                 }
