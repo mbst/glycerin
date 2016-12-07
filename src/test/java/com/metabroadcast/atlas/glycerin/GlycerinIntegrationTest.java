@@ -239,11 +239,17 @@ public class GlycerinIntegrationTest {
 
     private Long obtainScheduledStartTime(AvailableVersions availableVersions) {
         try {
-            AvailableVersions.Version version = availableVersions.getVersion().get(0);
-            AvailableVersions.Version.Availabilities availability = version.getAvailabilities().get(0);
-            return availability.getAvailableVersionsAvailability().get(0).getScheduledStart().toGregorianCalendar().getTimeInMillis();
-        } catch (Exception e) {
-            return null;
-        }
+            for( AvailableVersions.Version av: availableVersions.getVersion()){
+                for (AvailableVersions.Version.Availabilities aa: av.getAvailabilities())   {
+                    for(AvailableVersions.Version.Availabilities.Availability a: aa.getAvailableVersionsAvailability()) {
+                        if ("future".equals(a.getStatus())) {
+                            continue;
+                        }
+                        return a.getScheduledStart().toGregorianCalendar().getTimeInMillis();
+                    }
+                }
+            }
+        } catch (Exception e) {}
+        return null;
     }
 }
