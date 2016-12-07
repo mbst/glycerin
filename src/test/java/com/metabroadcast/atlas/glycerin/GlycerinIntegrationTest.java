@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-
+import com.google.api.client.repackaged.com.google.common.base.Throwables;
 import com.google.common.collect.Ordering;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
@@ -17,6 +17,7 @@ import com.metabroadcast.atlas.glycerin.model.Programme;
 import com.metabroadcast.atlas.glycerin.model.Service;
 import com.metabroadcast.atlas.glycerin.model.Version;
 import com.metabroadcast.atlas.glycerin.model.AvailableVersions;
+import com.metabroadcast.atlas.glycerin.queries.EntityTypeOption;
 import com.metabroadcast.atlas.glycerin.queries.MasterBrandsMixin;
 import com.metabroadcast.atlas.glycerin.queries.MasterBrandsQuery;
 import com.metabroadcast.atlas.glycerin.queries.ProgrammesMixin;
@@ -178,50 +179,53 @@ public class GlycerinIntegrationTest {
     @Test(groups = "integration")
     public void testProgrammesQueryWithTitleAscendingSorting() throws GlycerinException {
         ProgrammesQuery query = ProgrammesQuery.builder()
-                .withDescendantsOf("b039gr8y").
-                        sortBy(ProgrammesSort.TITLE, ProgrammesSortDirection.ASCENDING).
-                        build();
+                .withDescendantsOf("b039gr8y")
+                .sortBy(ProgrammesSort.TITLE, ProgrammesSortDirection.ASCENDING)
+                .build();
         GlycerinResponse<Programme> response = glycerin.execute(query);
 
         List<String> programsTitles = new ArrayList<>();
+
         for (Programme programme : response.getResults()) {
             programsTitles.add(programme.getAsClip().getTitle());
         }
+
         assertTrue(Ordering.natural().isOrdered(programsTitles));
     }
 
     @Test(groups = "integration")
     public void testProgrammesQueryWithScheduleDescendingSorting() throws GlycerinException {
         ProgrammesQuery query = ProgrammesQuery.builder()
-                .withDescendantsOf("b007t575").
-                        withAvailability(AvailabilityOption.AVAILABLE).
-                        withMixins(ProgrammesMixin.AVAILABLE_VERSIONS).
-                        withPageSize(25).
-                        sortBy(ProgrammesSort.SCHEDULED_START, ProgrammesSortDirection.DESCENDING).
-                        build();
+                .withDescendantsOf("b007t575")
+                .withAvailability(AvailabilityOption.AVAILABLE)
+                .withEntityType(EntityTypeOption.EPISODE)
+                .withMixins(ProgrammesMixin.AVAILABLE_VERSIONS)
+                .withPageSize(25)
+                .sortBy(ProgrammesSort.SCHEDULED_START, ProgrammesSortDirection.DESCENDING)
+                .build();
         GlycerinResponse<Programme> response = glycerin.execute(query);
 
         List<Long> startSchedules = new ArrayList<>();
+
         for (Programme programme : response.getResults()) {
-            if (programme.isSeries() || programme.isClip())  {
-                continue;
-            }
             AvailableVersions availableVersions = programme.getAsEpisode().getAvailableVersions();
             Long scheduledStartTime = obtainScheduledStartTime(availableVersions);
             if (scheduledStartTime == null) {
                 continue;
             }
+
             startSchedules.add(scheduledStartTime);
         }
+
         assertTrue(Ordering.natural().reverse().isOrdered(startSchedules));
     }
 
     @Test(groups = "integration")
     public void testProgrammesQueryWithPidDefaultDescendingSorting() throws GlycerinException {
         ProgrammesQuery query = ProgrammesQuery.builder()
-                .withDescendantsOf("b007t575").
-                        sortBy(ProgrammesSort.PID).
-                        build();
+                .withDescendantsOf("b007t575")
+                .sortBy(ProgrammesSort.PID)
+                .build();
         GlycerinResponse<Programme> response = glycerin.execute(query);
 
         List<String> programmePids = new ArrayList<>();
@@ -239,17 +243,19 @@ public class GlycerinIntegrationTest {
 
     private Long obtainScheduledStartTime(AvailableVersions availableVersions) {
         try {
-            for( AvailableVersions.Version av: availableVersions.getVersion()){
-                for (AvailableVersions.Version.Availabilities aa: av.getAvailabilities())   {
-                    for(AvailableVersions.Version.Availabilities.Availability a: aa.getAvailableVersionsAvailability()) {
-                        if ("future".equals(a.getStatus())) {
-                            continue;
+            for(AvailableVersions.Version av : availableVersions.getVersion()){
+                for (AvailableVersions.Version.Availabilities aa : av.getAvailabilities())   {
+                    for(AvailableVersions.Version.Availabilities.Availability a : aa.getAvailableVersionsAvailability()) {
+                        if ("available".equals(a.getStatus())) {
+                            return a.getScheduledStart().toGregorianCalendar().getTimeInMillis();
                         }
-                        return a.getScheduledStart().toGregorianCalendar().getTimeInMillis();
                     }
                 }
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            throw Throwables.propagate(e);
+        }
+
         return null;
     }
 }
